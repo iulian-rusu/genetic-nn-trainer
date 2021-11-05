@@ -1,6 +1,7 @@
 #include <iostream>
+#include <nn.hpp>
 
 int main()
 {
-    std::cout << "Hello, World!\n";
+    std::cout << get_magic_number();
 }
