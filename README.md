@@ -1,2 +1,3 @@
-# genetic-nn-trainer
-Training a neural network with genetic algorithms
+# Digit recognition
+Training a neural network with genetic algorithms to recognize handwritten 
+digits.
