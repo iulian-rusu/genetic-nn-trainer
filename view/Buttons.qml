@@ -6,9 +6,7 @@ ColumnLayout {
     id: root
 
     signal clearClicked
-    signal resetModelClicked
     signal loadModelClicked
-    signal trainModelClicked
     signal saveModelClicked
 
     property int buttonWidth: 120
@@ -46,7 +44,7 @@ ColumnLayout {
             text: "Reset model"
 
             onClicked: {
-                root.resetModelClicked()
+                controller.onResetModel()
             }
         }
     }
@@ -81,7 +79,7 @@ ColumnLayout {
             text: "Train model"
 
             onClicked: {
-                root.trainModelClicked()
+                controller.onTrainModel()
             }
         }
 

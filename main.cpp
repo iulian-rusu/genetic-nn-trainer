@@ -1,5 +1,9 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
+
+#include <controller.h>
+#include <model.h>
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <sstream>
@@ -22,6 +26,12 @@ int main(int argc, char *argv[])
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
+
+    Model *model{new Model{}};
+    engine.rootContext()->setContextProperty("model", model);
+    Controller controller{model};
+    engine.rootContext()->setContextProperty("controller", &controller);
+
     engine.load(url);
 
     return app.exec();

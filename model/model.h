@@ -1,0 +1,30 @@
+#ifndef GENETIC_NN_TRAINER_MODEL_H
+#define GENETIC_NN_TRAINER_MODEL_H
+
+#include <QObject>
+#include <QString>
+#include <QVariantList>
+#include <array>
+#include <string>
+
+class Model : public QObject {
+    Q_OBJECT
+public:
+    explicit Model(QObject * = nullptr);
+    void resetModel();
+    void loadModel(std::string);
+    void trainModel();
+    void saveModel(std::string);
+    void updateModel(std::array<std::array<std::uint8_t, 28>, 28>);
+
+signals:
+    void updateTrainData(std::size_t, double);
+    void updatePredictions(QVariantList);
+
+private:
+    void computePredictions();
+    void send(std::array<double, 10>);
+    void send(std::size_t, double);
+};
+
+#endif //GENETIC_NN_TRAINER_MODEL_H

@@ -39,14 +39,11 @@ endif()
 find_package(QT NAMES Qt6 COMPONENTS Core Quick REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 
+add_subdirectory(controller)
 add_subdirectory(gnnt)
+add_subdirectory(model)
 add_subdirectory(view)
 add_subdirectory(test)
-
-target_include_directories(gnnt INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/gnnt>
-        $<INSTALL_INTERFACE:include/gnnt
-)
 
 set(PROJECT_SOURCES
     main.cpp
@@ -64,7 +61,7 @@ endif()
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(${PROJECT_NAME}
-  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick gnnt view)
+  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick controller gnnt model view)
 
 qt_import_qml_plugins(${PROJECT_NAME})
 qt_finalize_executable(${PROJECT_NAME})

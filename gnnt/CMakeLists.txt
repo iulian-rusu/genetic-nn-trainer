@@ -3,5 +3,4 @@ add_library(
         gnnt.hpp
 )
 
-target_include_directories(gnnt INTERFACE)
-target_link_libraries(gnnt PUBLIC)
+target_include_directories(gnnt INTERFACE .)
