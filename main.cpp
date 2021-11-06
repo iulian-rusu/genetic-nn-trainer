@@ -1,23 +1,29 @@
-#include <iostream>
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
 #include <gnnt.hpp>
 
-int main()
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <sstream>
+#include <stdexcept>
+#endif
+
+int main(int argc, char *argv[])
 {
-    auto dataset = gnnt::mnist_serializer::read("../data");
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    std::ostringstream oss;
+    oss << "QT_VERSION = " << QT_VERSION << " >= 6.0.0 REQUIRED QT_VERSION = ";
+    throw std::runtime_error(oss.str());
+#endif
 
-    std::cout << "Train images: " << dataset.train_images.size() << '\n';
-    std::cout << "Test images: " << dataset.test_images.size() << '\n';
-    std::cout << "Train labels: " << dataset.train_labels.size() << '\n';
-    std::cout << "Test labels: " << dataset.test_labels.size() << '\n';
+    QGuiApplication app(argc, argv);
+    QQmlApplicationEngine engine;
+    const QUrl url(QStringLiteral("qrc:/view/main.qml"));
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
+                     &app, [url](QObject *obj, const QUrl &objUrl) {
+        if (!obj && url == objUrl)
+            QCoreApplication::exit(-1);
+    }, Qt::QueuedConnection);
+    engine.load(url);
 
-    std::size_t random_index = 420;
-
-    auto &img = dataset.train_images[random_index];
-    for (auto i = 0u; i < img.size(); ++i)
-    {
-        std::printf("%3d ", img[i]);
-        if (i % 28 == 27)
-            std::cout << '\n';
-    }
-    std::printf("\nLabel: %d\n", dataset.train_labels[random_index]);
+    return app.exec();
 }
