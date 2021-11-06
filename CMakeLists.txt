@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(gnnt VERSION 0.1 LANGUAGES CXX)
+project(genetic-nn-trainer VERSION 0.1 LANGUAGES CXX)
 
 if(WIN32)
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -25,6 +25,10 @@ if (MSVC)
     endif()
 else()
     add_compile_options(-Wall -Wextra -Wpedantic -Wuninitialized -Wshadow -Wunused)
+    # if (CMAKE_CXX_COMPILER_ID MATCHES Clang)
+        # add_compile_options(-stdlib=libc++)
+        # add_link_options(-fuse-ld=lld)
+    # endif()
     if (CMAKE_BUILD_TYPE MATCHES Debug)
         add_compile_options(-Og)
     else()
@@ -35,8 +39,13 @@ endif()
 find_package(QT NAMES Qt6 COMPONENTS Core Quick REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 
-add_subdirectory(thirdparty)
+add_subdirectory(gnnt)
 add_subdirectory(view)
+
+target_include_directories(gnnt INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/gnnt>
+        $<INSTALL_INTERFACE:include/gnnt
+)
 
 set(PROJECT_SOURCES
     main.cpp
@@ -53,7 +62,7 @@ endif()
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(${PROJECT_NAME}
-  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick thirdparty view)
+  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick gnnt view)
 
 qt_import_qml_plugins(${PROJECT_NAME})
 qt_finalize_executable(${PROJECT_NAME})

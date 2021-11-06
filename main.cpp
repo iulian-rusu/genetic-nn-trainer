@@ -1,6 +1,5 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <gnnt.hpp>
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <sstream>
