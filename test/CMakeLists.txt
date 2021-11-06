@@ -1,0 +1,25 @@
+include_directories(../gnnt)
+
+add_executable(
+        dataset_tests
+        dataset_tests.cpp
+)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+if (MSVC)
+    add_compile_options(/W4)
+    if (CMAKE_BUILD_TYPE MATCHES Debug)
+        add_compile_options(/O2)
+    else()
+        add_compile_options(/Od)
+    endif()
+else()
+    add_compile_options(-Wall -Wextra -Wpedantic -Wuninitialized -Wshadow -Wunused)
+    if (CMAKE_BUILD_TYPE MATCHES Debug)
+        add_compile_options(-Og)
+    else()
+        add_compile_options(-O3)
+    endif()
+endif()

@@ -3,17 +3,19 @@
 
 #include <vector>
 #include <fstream>
+#include <filesystem>
 #include <gnnt/mnist/dataset.hpp>
 
 namespace gnnt
 {
+    static inline constexpr std::size_t image_dimension = 28 * 28;
+
     template<bidimensional_container ImageContainer, container LabelContainer>
     struct basic_mnist_serializer
     {
         using dataset_t = basic_mnist_dataset<ImageContainer, LabelContainer>;
 
-        static constexpr std::size_t image_size_pixels = 28 * 28;
-        static constexpr std::size_t image_size_bytes = image_size_pixels * sizeof(typename dataset_t::pixel_t);
+        static constexpr std::size_t image_size_bytes = image_dimension * sizeof(typename dataset_t::pixel_t);
         static constexpr std::size_t label_size_bytes = sizeof(typename dataset_t::label_t);
 
         static dataset_t read(std::string const &dir_path)
@@ -38,15 +40,16 @@ namespace gnnt
 
         static void write(std::string const &dir_path, dataset_t const &data)
         {
+            std::filesystem::create_directory(dir_path);
             std::string test_images_path = dir_path + "/test_images.data";
             std::string test_labels_path = dir_path + "/test_labels.data";
             std::string train_images_path = dir_path + "/train_images.data";
             std::string train_labels_path = dir_path + "/train_labels.data";
 
-            write_images(train_images_path);
-            write_images(test_images_path);
-            write_labels(train_labels_path);
-            write_labels(test_labels_path);
+            write_images(train_images_path, data.train_images);
+            write_images(test_images_path, data.test_images);
+            write_labels(train_labels_path, data.train_labels);
+            write_labels(test_labels_path, data.test_labels);
         }
 
     private:
@@ -58,7 +61,7 @@ namespace gnnt
             std::size_t size = 0;
             is.read(reinterpret_cast<char *>(&size), sizeof size);
 
-            ImageContainer images(size, image_t(image_size_pixels));
+            ImageContainer images(size, image_t{});
             for (auto &img: images)
                 is.read(reinterpret_cast<char *>(&img[0]), image_size_bytes);
             return images;
@@ -77,22 +80,23 @@ namespace gnnt
 
         static void write_images(std::string const &path, ImageContainer const &images)
         {
-            std::ofstream os(path.data(), std::ios::binary);
+            std::ofstream os(path.data(), std::ios::binary | std::ios::trunc);
             std::size_t size = images.size();
-            os.write(reinterpret_cast<const char *>(&size), label_size_bytes);
+            os.write(reinterpret_cast<const char *>(&size), sizeof size);
             for (auto const &img: images)
                 os.write(reinterpret_cast<const char *>(&img[0]), image_size_bytes);
         }
 
         static void write_labels(std::string const &path, LabelContainer const &labels)
         {
-            std::ofstream os(path, std::ios::binary);
+            std::ofstream os(path, std::ios::binary | std::ios::trunc);
             std::size_t size = labels.size();
-            os.write(reinterpret_cast<const char *>(&size), label_size_bytes);
+            os.write(reinterpret_cast<const char *>(&size), sizeof size);
             os.write(reinterpret_cast<const char *>(&labels[0]), size * label_size_bytes);
         }
     };
 
-    using mnist_serializer = basic_mnist_serializer<std::vector<std::vector<uint8_t>>, std::vector<uint8_t>>;
+    using mnist_image = std::array<uint8_t, image_dimension>;
+    using mnist_serializer = basic_mnist_serializer<std::vector<mnist_image>, std::vector<uint8_t>>;
 }
 #endif //GNNT_MNIST_SERIALIZER_HPP

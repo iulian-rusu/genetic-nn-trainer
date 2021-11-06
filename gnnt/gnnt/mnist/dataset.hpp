@@ -18,11 +18,11 @@ namespace gnnt
         LabelContainer test_labels{};
 
         template<typename I, typename L>
-        basic_mnist_dataset(I &&train_images, I &&test_images, L &&train_labels, L &&test_labels)
-                : train_images{std::forward<I>(train_images)},
-                  test_images{std::forward<I>(test_images)},
-                  train_labels{std::forward<L>(train_labels)},
-                  test_labels{std::forward<L>(test_labels)}
+        basic_mnist_dataset(I &&train_img, I &&test_img, L &&train_lbl, L &&test_lbl)
+                : train_images{std::forward<I>(train_img)},
+                  test_images{std::forward<I>(test_img)},
+                  train_labels{std::forward<L>(train_lbl)},
+                  test_labels{std::forward<L>(test_lbl)}
         {}
     };
 }

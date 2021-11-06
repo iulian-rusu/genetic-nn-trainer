@@ -41,6 +41,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 
 add_subdirectory(gnnt)
 add_subdirectory(view)
+add_subdirectory(test)
 
 target_include_directories(gnnt INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/gnnt>
