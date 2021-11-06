@@ -51,9 +51,10 @@ set(PROJECT_SOURCES
     main.cpp
     qml.qrc
 )
-add_executable(${PROJECT_NAME}
-    ${PROJECT_SOURCES}
-)
+qt_add_executable(${PROJECT_NAME}
+        MANUAL_FINALIZATION
+        ${PROJECT_SOURCES}
+        )
 
 if(WIN32)
     deploy_qt(${PROJECT_NAME})
