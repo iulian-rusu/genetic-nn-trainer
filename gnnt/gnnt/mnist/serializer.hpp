@@ -55,13 +55,11 @@ namespace gnnt
     private:
         static ImageContainer read_images(std::string const &path)
         {
-            using image_t = typename dataset_t::image_t;
-
             std::ifstream is(path, std::ios::binary);
             std::size_t size = 0;
             is.read(reinterpret_cast<char *>(&size), sizeof size);
 
-            ImageContainer images(size, image_t{});
+            ImageContainer images(size);
             for (auto &img: images)
                 is.read(reinterpret_cast<char *>(&img[0]), image_size_bytes);
             return images;
