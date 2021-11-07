@@ -20,6 +20,7 @@ public:
 signals:
     void updateTrainData(std::size_t, double);
     void updatePredictions(QVariantList);
+    void showPopup(QString);
 
 private:
     void computePredictions();

@@ -1,7 +1,8 @@
 import QtQuick
+import QtQuick.Controls
+import QtQuick.Dialogs
 import QtQuick.Layouts
 import QtQuick.Window
-import QtQuick.Dialogs
 
 Window {
     id: root
@@ -68,7 +69,7 @@ Window {
         fileMode: FileDialog.OpenFile
 
         onAccepted: {
-            controller.onLoadModel(fileDialog.selectedFile);
+            controller.onLoadModel(loadModelDialog.selectedFile);
         }
 
         Connections {
@@ -86,13 +87,46 @@ Window {
         fileMode: FileDialog.SaveFile
 
         onAccepted: {
-            controller.onSaveModel(fileDialog.selectedFile);
+            controller.onSaveModel(saveModelDialog.selectedFile);
         }
 
         Connections {
             target: buttons
             function onSaveModelClicked() {
                 saveModelDialog.open()
+            }
+        }
+    }
+
+    Popup {
+        id: popup
+        anchors.centerIn: parent
+        padding: 20
+        modal: true
+        dim: true
+
+        ColumnLayout {
+            spacing: 20
+            Label {
+                id: popupLabel
+                Layout.alignment: Qt.AlignHCenter
+                color: "#FFFFFF"
+            }
+            Button {
+                id: popupButton
+                Layout.alignment: Qt.AlignHCenter
+                Layout.preferredWidth: 80
+                Layout.preferredHeight: 25
+                text: "Ok"
+                onClicked: popup.close()
+            }
+        }
+
+        Connections {
+            target: model
+            function onShowPopup(text) {
+                popupLabel.text = text
+                popup.open()
             }
         }
     }

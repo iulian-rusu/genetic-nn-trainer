@@ -8,12 +8,22 @@ void Model::resetModel() {
      */
 
     send(0, 0);
+    emit showPopup(QStringLiteral("Model reset"));
 }
 
 void Model::loadModel(std::string location) {
+    bool modelLoaded = false;
+
     /*
      * TODO load model from file
      */
+
+    if (modelLoaded) {
+        emit showPopup(QStringLiteral("Model loaded"));
+    }
+    else {
+        emit showPopup(QStringLiteral("Could not load model"));
+    }
 }
 
 void Model::trainModel() {
@@ -25,12 +35,22 @@ void Model::trainModel() {
      */
 
     send(generations, accuracy);
+    emit showPopup(QStringLiteral("Model trained"));
 }
 
 void Model::saveModel(std::string location) {
+    bool modelSaved = false;
+
     /*
      * TODO save model to file
      */
+
+    if (modelSaved) {
+        emit showPopup(QStringLiteral("Model saved"));
+    }
+    else {
+        emit showPopup(QStringLiteral("Could not save model"));
+    }
 }
 
 void Model::updateModel(std::array<std::array<std::uint8_t, 28>, 28> grid) {
