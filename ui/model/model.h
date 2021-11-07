@@ -6,6 +6,7 @@
 #include <QVariantList>
 #include <array>
 #include <string>
+#include <gnnt.hpp>
 
 class Model : public QObject {
     Q_OBJECT

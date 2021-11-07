@@ -1,9 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>view/main.qml</file>
-        <file>view/VCanvas.qml</file>
-        <file>view/Buttons.qml</file>
-        <file>view/Stats.qml</file>
-        <file>view/Predictions.qml</file>
+        <file>ui/view/main.qml</file>
+        <file>ui/view/VCanvas.qml</file>
+        <file>ui/view/Buttons.qml</file>
+        <file>ui/view/Stats.qml</file>
+        <file>ui/view/Predictions.qml</file>
     </qresource>
 </RCC>
