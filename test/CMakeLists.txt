@@ -1,9 +1,10 @@
 add_executable(
-        dataset_tests
+        tests
         dataset_tests.cpp
+        mlp_tests.cpp
 )
 
-target_link_libraries(dataset_tests PUBLIC gnnt)
+target_link_libraries(tests PUBLIC gnnt)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
