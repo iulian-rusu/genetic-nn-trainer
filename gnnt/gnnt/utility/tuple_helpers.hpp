@@ -1,6 +1,8 @@
 #ifndef GENETIC_NN_TRAINER_TUPLE_HELPERS_HPP
 #define GENETIC_NN_TRAINER_TUPLE_HELPERS_HPP
 
+#include <tuple>
+
 namespace gnnt
 {
     namespace detail

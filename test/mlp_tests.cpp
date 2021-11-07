@@ -6,10 +6,11 @@ using namespace gnnt::mlp;
 using neural_network =
         network
         <
-            input<float, 28 * 28>,
-            layer<float, 5, relu>,
-            layer<float, 8, relu>,
-            layer<float, 10, softmax>
+            float,
+            input<28 * 28>,
+            dense<5, leaky_relu>,
+            dense<8, relu>,
+            dense<10, softmax>
         >;
 
 static_assert(

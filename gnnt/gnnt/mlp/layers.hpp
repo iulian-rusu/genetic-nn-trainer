@@ -5,21 +5,17 @@
 
 namespace gnnt::mlp
 {
-    template< std::floating_point T, std::size_t N>
-    struct layer_base
+    template<std::size_t N>
+    struct layer
     {
-        using value_type = T;
         static constexpr std::size_t size = N;
     };
 
-    template<typename Layer>
-    using value_type = typename Layer::value_type;
+    template<std::size_t N>
+    using input = layer<N>;
 
-    template<std::floating_point T, std::size_t N>
-    using input = layer_base<T, N>;
-
-    template<std::floating_point T, std::size_t N, typename Activation>
-    struct layer : layer_base<T, N>
+    template<std::size_t N, typename Activation>
+    struct dense : layer<N>
     {
         using activation = Activation;
     };
@@ -29,16 +25,16 @@ namespace gnnt::mlp
 
     namespace detail
     {
-        template<std::size_t I, typename Layers, typename Input>
-        struct layer_type
+        template<std::size_t I, typename Layers, typename Default>
+        struct layer_as_array
         {
             using type = std::decay_t<decltype(std::get<I - 1>(std::declval<Layers>()))>;
         };
 
-        template<typename Layers, typename Input>
-        struct layer_type<0, Layers, Input>
+        template<typename Layers, typename Default>
+        struct layer_as_array<0, Layers, Default>
         {
-            using type = std::array<value_type<Input>, Input::size>;
+            using type = Default;
         };
     }
 }

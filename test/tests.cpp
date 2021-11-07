@@ -19,10 +19,13 @@ using namespace gnnt::mlp;
 using neural_network =
         network
         <
-            input<float, 28 * 28>,
-            layer<float, 5, relu>,
-            layer<float, 8, relu>,
-            layer<float, 10, softmax>
+            float,
+            input<28 * 28>,
+            dense<8, sigmoid>,
+            dense<16, prelu<0.3>>,
+            dense<32, leaky_relu>,
+            dense<64, relu>,
+            dense<10, softmax>
         >;
 
 int main()
@@ -38,11 +41,10 @@ int main()
     show_image(random_index, dataset);
 
     neural_network nn{};
-
     auto const &img = dataset.train_images[random_index];
     std::array<float, 28*28> norm_img{};
     gnnt::normalize(img.cbegin(), img.cend(), norm_img.begin(), 0, 255);
     auto out = nn(norm_img);
-    for(auto e : out)
+    for (auto e: out)
         std::cout << e << ' ';
 }
