@@ -14,6 +14,17 @@ void show_image(std::size_t index, auto const &dataset)
     std::printf("\nLabel: %d\n", dataset.train_labels[index]);
 }
 
+using namespace gnnt::mlp;
+
+using neural_network =
+        network
+        <
+            input<float, 28 * 28>,
+            layer<float, 5, relu>,
+            layer<float, 8, relu>,
+            layer<float, 10, softmax>
+        >;
+
 int main()
 {
     auto dataset = gnnt::mnist_serializer::read("../../data/mnist");
@@ -25,7 +36,13 @@ int main()
     std::cout << "Test labels: " << dataset.test_labels.size() << '\n';
 
     show_image(random_index, dataset);
-    gnnt::mnist_serializer::write("data_tmp", dataset);
-    dataset = gnnt::mnist_serializer::read("data_tmp");
-    show_image(random_index, dataset);
+
+    neural_network nn{};
+
+    auto const &img = dataset.train_images[random_index];
+    std::array<float, 28*28> norm_img{};
+    gnnt::normalize(img.cbegin(), img.cend(), norm_img.begin(), 0, 255);
+    auto out = nn(norm_img);
+    for(auto e : out)
+        std::cout << e << ' ';
 }

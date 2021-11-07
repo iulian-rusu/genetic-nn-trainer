@@ -1,6 +1,6 @@
 add_executable(
         tests
-        dataset_tests.cpp
+        tests.cpp
         mlp_tests.cpp
 )
 
