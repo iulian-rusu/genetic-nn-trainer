@@ -1,4 +1,4 @@
-#include "model.h"
+#include <model.hpp>
 
 Model::Model(QObject *parent) : QObject(parent) {}
 
@@ -11,7 +11,7 @@ void Model::resetModel() {
     emit showPopup(QStringLiteral("Model reset"));
 }
 
-void Model::loadModel(std::string location) {
+void Model::loadModel(std::string &&location) {
     bool modelLoaded = false;
 
     /*
@@ -38,7 +38,7 @@ void Model::trainModel() {
     emit showPopup(QStringLiteral("Model trained"));
 }
 
-void Model::saveModel(std::string location) {
+void Model::saveModel(std::string &&location) {
     bool modelSaved = false;
 
     /*

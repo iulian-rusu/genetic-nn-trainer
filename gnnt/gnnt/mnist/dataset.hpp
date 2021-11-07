@@ -1,5 +1,5 @@
-#ifndef GNNT_MNIST_DATASET_HPP
-#define GNNT_MNIST_DATASET_HPP
+#ifndef GENETIC_NN_TRAINER_MNIST_DATASET_HPP
+#define GENETIC_NN_TRAINER_MNIST_DATASET_HPP
 
 #include <gnnt/utility/concepts.hpp>
 
@@ -26,4 +26,4 @@ namespace gnnt
         {}
     };
 }
-#endif //GNNT_MNIST_DATASET_HPP
+#endif //GENETIC_NN_TRAINER_MNIST_DATASET_HPP

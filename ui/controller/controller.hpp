@@ -1,11 +1,11 @@
-#ifndef GENETIC_NN_TRAINER_CONTROLLER_H
-#define GENETIC_NN_TRAINER_CONTROLLER_H
+#ifndef GENETIC_NN_TRAINER_CONTROLLER_HPP
+#define GENETIC_NN_TRAINER_CONTROLLER_HPP
 
 #include <QObject>
 #include <QString>
 #include <QUrl>
 #include <QVariantList>
-#include "model.h"
+#include "model.hpp"
 
 class Controller : public QObject {
     Q_OBJECT
@@ -23,4 +23,4 @@ private:
     Model *model;
 };
 
-#endif //GENETIC_NN_TRAINER_CONTROLLER_H
+#endif //GENETIC_NN_TRAINER_CONTROLLER_HPP

@@ -1,4 +1,5 @@
-add_library(gnnt INTERFACE
+add_library(
+        gnnt INTERFACE
         gnnt.hpp
 )
 

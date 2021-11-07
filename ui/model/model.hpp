@@ -1,5 +1,5 @@
-#ifndef GENETIC_NN_TRAINER_MODEL_H
-#define GENETIC_NN_TRAINER_MODEL_H
+#ifndef GENETIC_NN_TRAINER_MODEL_HPP
+#define GENETIC_NN_TRAINER_MODEL_HPP
 
 #include <QObject>
 #include <QString>
@@ -13,9 +13,9 @@ class Model : public QObject {
 public:
     explicit Model(QObject * = nullptr);
     void resetModel();
-    void loadModel(std::string);
+    void loadModel(std::string &&);
     void trainModel();
-    void saveModel(std::string);
+    void saveModel(std::string &&);
     void updateModel(std::array<std::array<std::uint8_t, 28>, 28>);
 
 signals:
@@ -29,4 +29,4 @@ private:
     void send(std::size_t, double);
 };
 
-#endif //GENETIC_NN_TRAINER_MODEL_H
+#endif //GENETIC_NN_TRAINER_MODEL_HPP

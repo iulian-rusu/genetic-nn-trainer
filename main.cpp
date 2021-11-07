@@ -1,22 +1,13 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <controller.hpp>
+#include <model.hpp>
 
-#include <controller.h>
-#include <model.h>
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#include <sstream>
-#include <stdexcept>
-#endif
+static_assert(QT_VERSION >= QT_VERSION_CHECK(6, 0, 0), "QT >= 6.0.0 required");
 
 int main(int argc, char *argv[])
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    std::ostringstream oss;
-    oss << "QT_VERSION = " << QT_VERSION << " >= 6.0.0 REQUIRED QT_VERSION = ";
-    throw std::runtime_error(oss.str());
-#endif
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/ui/view/main.qml"));
@@ -33,5 +24,5 @@ int main(int argc, char *argv[])
 
     engine.load(url);
 
-    return app.exec();
+    return QGuiApplication::exec();
 }

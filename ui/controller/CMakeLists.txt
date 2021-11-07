@@ -1,6 +1,6 @@
 add_library(controller STATIC
         controller.cpp
-        controller.h
+        controller.hpp
         )
 
 target_include_directories(controller PUBLIC .)

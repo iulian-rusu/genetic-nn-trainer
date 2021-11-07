@@ -1,5 +1,5 @@
-#ifndef GNNT_CONCEPTS_HPP
-#define GNNT_CONCEPTS_HPP
+#ifndef GENETIC_NN_TRAINER_CONCEPTS_HPP
+#define GENETIC_NN_TRAINER_CONCEPTS_HPP
 
 #include <gnnt/utility/meta.hpp>
 
@@ -11,4 +11,4 @@ namespace gnnt
     template<typename T>
     concept bidimensional_container = container<T> && container<value_type<T>>;
 }
-#endif //GNNT_CONCEPTS_HPP
+#endif //GENETIC_NN_TRAINER_CONCEPTS_HPP

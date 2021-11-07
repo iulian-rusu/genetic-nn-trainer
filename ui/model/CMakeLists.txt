@@ -1,6 +1,6 @@
 add_library(model STATIC
         model.cpp
-        model.h
+        model.hpp
         )
 
 target_include_directories(model PUBLIC .)

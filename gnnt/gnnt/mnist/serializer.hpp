@@ -1,5 +1,5 @@
-#ifndef GNNT_MNIST_SERIALIZER_HPP
-#define GNNT_MNIST_SERIALIZER_HPP
+#ifndef GENETIC_NN_TRAINER_MNIST_SERIALIZER_HPP
+#define GENETIC_NN_TRAINER_MNIST_SERIALIZER_HPP
 
 #include <vector>
 #include <fstream>
@@ -97,4 +97,4 @@ namespace gnnt
     using mnist_image = std::array<uint8_t, image_dimension>;
     using mnist_serializer = basic_mnist_serializer<std::vector<mnist_image>, std::vector<uint8_t>>;
 }
-#endif //GNNT_MNIST_SERIALIZER_HPP
+#endif //GENETIC_NN_TRAINER_MNIST_SERIALIZER_HPP

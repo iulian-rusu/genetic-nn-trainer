@@ -1,6 +1,6 @@
-#ifndef GNNT_HPP
-#define GNNT_HPP
+#ifndef GENETIC_NN_TRAINER_GNNT_HPP
+#define GENETIC_NN_TRAINER_GNNT_HPP
 
 #include <gnnt/mnist/serializer.hpp>
 
-#endif //GNNT_HPP
+#endif //GENETIC_NN_TRAINER_GNNT_HPP

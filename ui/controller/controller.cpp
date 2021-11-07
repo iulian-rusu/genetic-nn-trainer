@@ -1,5 +1,5 @@
-#include "controller.h"
 #include <array>
+#include <controller.hpp>
 
 Controller::Controller(Model *amodel, QObject *parent) : QObject(parent), model(amodel) {}
 
@@ -9,7 +9,7 @@ void Controller::onResetModel() {
 
 void Controller::onLoadModel(QUrl const &qlocation) {
     auto location = qlocation.toString().toStdString();
-    model->loadModel(location);
+    model->loadModel(std::move(location));
 }
 
 void Controller::onTrainModel() {
@@ -18,7 +18,7 @@ void Controller::onTrainModel() {
 
 void Controller::onSaveModel(QUrl const &qlocation) {
     auto location = qlocation.toString().toStdString();
-    model->saveModel(location);
+    model->saveModel(std::move(location));
 }
 
 void Controller::onUpdateModel(QVariantList const &qgrid) {
