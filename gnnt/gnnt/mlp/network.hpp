@@ -40,7 +40,7 @@ namespace gnnt::mlp
             });
         }
 
-        network() noexcept : network(std::normal_distribution(0.0, 0.1))
+        network() noexcept : network(std::normal_distribution(0.0, 0.3))
         {}
 
         output_t operator()(input_t const &input) const noexcept

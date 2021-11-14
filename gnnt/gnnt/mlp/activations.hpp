@@ -22,7 +22,6 @@ namespace gnnt::mlp
     };
 
     using relu = prelu<0>;
-    using leaky_relu = prelu<0.01>;
 
     struct sigmoid
     {

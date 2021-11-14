@@ -20,10 +20,10 @@ using neural_network =
         network
         <
             float,
-            input<28 * 28>,
+            input<gnnt::image_dimension>,
             dense<8, sigmoid>,
             dense<16, prelu<0.3>>,
-            dense<32, leaky_relu>,
+            dense<32, prelu<0.01>>,
             dense<64, relu>,
             dense<10, softmax>
         >;
@@ -42,7 +42,7 @@ int main()
 
     neural_network nn{};
     auto const &img = dataset.train_images[random_index];
-    std::array<float, 28*28> norm_img{};
+    std::array<float, gnnt::image_dimension> norm_img{};
     gnnt::normalize(img.cbegin(), img.cend(), norm_img.begin(), 0, 255);
     auto out = nn(norm_img);
     for (auto e: out)

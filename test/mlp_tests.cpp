@@ -8,7 +8,7 @@ using neural_network =
         <
             float,
             input<28 * 28>,
-            dense<5, leaky_relu>,
+            dense<5, prelu<0.01>>,
             dense<8, relu>,
             dense<10, softmax>
         >;
