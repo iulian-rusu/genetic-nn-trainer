@@ -3,5 +3,6 @@
 
 #include <gnnt/mnist/serializer.hpp>
 #include <gnnt/mlp/network.hpp>
+#include <gnnt/training/trainer.hpp>
 
 #endif //GENETIC_NN_TRAINER_GNNT_HPP
