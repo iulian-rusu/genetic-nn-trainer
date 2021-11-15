@@ -26,13 +26,13 @@ namespace gnnt::mlp
     namespace detail
     {
         template<std::size_t I, typename Layers, typename Default>
-        struct layer_as_array
+        struct array_for_layer
         {
             using type = std::decay_t<decltype(std::get<I - 1>(std::declval<Layers>()))>;
         };
 
         template<typename Layers, typename Default>
-        struct layer_as_array<0, Layers, Default>
+        struct array_for_layer<0, Layers, Default>
         {
             using type = Default;
         };

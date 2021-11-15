@@ -8,9 +8,15 @@ namespace gnnt
     namespace detail
     {
         template<typename Tuple, typename Func, std::size_t... Indices>
-        constexpr auto tuple_transform(Tuple const &tuple, Func &&func, std::index_sequence<Indices ...> &&)
+        constexpr void tuple_for_each(
+                Tuple const &tuple_in1,
+                Tuple const &tuple_in2,
+                Tuple &tuple_out,
+                Func &&func,
+                std::index_sequence<Indices ...> &&
+        )
         {
-            return std::tuple{func(std::get<Indices>(tuple)) ...};
+            (func(std::get<Indices>(tuple_in1), std::get<Indices>(tuple_in2), std::get<Indices>(tuple_out)), ...);
         }
 
         template<typename Tuple, typename Func, std::size_t... Indices>
@@ -21,18 +27,21 @@ namespace gnnt
     }
 
     /**
-     * Creates a new tuple by applying a callable object on each element of
-     * another tuple.
+     * Applies a callable object on sets of three respective elements of a tuple-like collection.
+     * The first two tuples are considered inputs, the last tuple is a mutable out-parameter.
      *
-     * @param tuple     The original tuple
-     * @param func      The callable that generates elements for the new tuple
-     * @return          A new std::tuple with elements returned by mapper
+     * @param tuple_in1     The first input tuple
+     * @param tuple_in2     The second input tuple
+     * @param tuple_out     The output tuple passed as mutable reference
+     * @param func          The mapped function
      */
     template<typename Tuple, typename Func>
-    constexpr auto tuple_transform(Tuple const &tuple, Func &&func)
+    constexpr void tuple_for_each(Tuple const &tuple_in1, Tuple const &tuple_in2, Tuple &tuple_out, Func &&func)
     {
-        return detail::tuple_transform(
-                tuple,
+        detail::tuple_for_each(
+                tuple_in1,
+                tuple_in2,
+                tuple_out,
                 std::forward<Func>(func),
                 std::make_index_sequence<std::tuple_size_v<std::decay_t<Tuple>>>{}
         );

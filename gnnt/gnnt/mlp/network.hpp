@@ -19,18 +19,31 @@ namespace gnnt::mlp
         using value_type = T;
 
         template<std::size_t I>
-        using layer_t = typename detail::layer_as_array<I, biases_t, std::array<T, Input::size>>::type;
+        using layer_t = typename detail::array_for_layer<I, biases_t, std::array<T, Input::size>>::type;
         using input_t = layer_t<0>;
         using output_t = layer_t<num_layers - 1>;
 
         biases_t biases{};
         weights_t weights{};
 
+        network() = default;
+
         template<typename Dist>
-        explicit network(Dist dist) noexcept
+        explicit network(Dist &&dist) noexcept
+        {
+            generate_params(std::forward<Dist>(dist));
+        }
+
+        void generate_params()
+        {
+            generate_params(std::normal_distribution(value_type{0.0}, value_type{0.3}));
+        }
+
+        template<typename Dist>
+        void generate_params(Dist &&dist) noexcept
         {
             auto factory = random_generator_factory{};
-            auto rng = factory.create(std::move(dist));
+            auto rng = factory.create(std::forward<Dist>(dist));
             tuple_for_each(biases, [&](auto &b) {
                 std::generate(b.begin(), b.end(), rng);
             });
@@ -39,9 +52,6 @@ namespace gnnt::mlp
                     std::generate(w.begin(), w.end(), rng);
             });
         }
-
-        network() noexcept : network(std::normal_distribution(0.0, 0.3))
-        {}
 
         output_t operator()(input_t const &input) const noexcept
         {

@@ -1,6 +1,6 @@
 #include <iostream>
-#include <gnnt.hpp>
 #include <array>
+#include <gnnt.hpp>
 
 void show_image(std::size_t index, auto const &dataset)
 {
@@ -21,10 +21,8 @@ using neural_network =
         <
             float,
             input<gnnt::image_dimension>,
-            dense<8, sigmoid>,
-            dense<16, prelu<0.3>>,
-            dense<32, prelu<0.01>>,
-            dense<64, relu>,
+            dense<8, prelu<0.01>>,
+            dense<8, prelu<0.01>>,
             dense<10, softmax>
         >;
 
@@ -40,11 +38,24 @@ int main()
 
     show_image(random_index, dataset);
 
-    neural_network nn{};
     auto const &img = dataset.train_images[random_index];
     std::array<float, gnnt::image_dimension> norm_img{};
     gnnt::normalize(img.cbegin(), img.cend(), norm_img.begin(), 0, 255);
-    auto out = nn(norm_img);
+
+    // Example of how to create and train models
+    constexpr auto config = gnnt::trainer_config{
+            .max_generations = 100,
+            .population_size = 100,
+            .mutation_prob = 0.02,
+            .crossover_alpha = 0.33
+    };
+    auto trainer = gnnt::trainer<gnnt::chromosome<neural_network>, config>{};
+    auto[chrom, generations] = trainer.train([&](auto const &network) {
+        return std::abs(network(norm_img)[0] - 1.0);
+    });
+    std::cout << "Generations: " << generations << '\n';
+
+    auto out = chrom.network(norm_img);
     for (auto e: out)
         std::cout << e << ' ';
 }
