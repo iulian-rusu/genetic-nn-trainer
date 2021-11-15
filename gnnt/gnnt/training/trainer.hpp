@@ -16,9 +16,16 @@ namespace gnnt
         using population_t = std::vector<chromosome_t>;
         using parents_t = std::vector<pair<uint32_t, uint32_t>>;
 
-        static constexpr auto crossover_func = [](auto const &in1, auto const &in2, auto &out) noexcept {
-            for (uint32_t i = 0; i < out.size(); ++i)
-                out[i] = in1[i] * config.crossover_alpha + in2[i] * (1 - config.crossover_alpha);
+        static constexpr auto crossover_func = [](auto const &xs, auto const &ys, auto &out) noexcept {
+            std::transform(
+                    xs.cbegin(),
+                    xs.cend(),
+                    ys.cbegin(),
+                    out.begin(),
+                    [](auto x, auto y) {
+                        return y * config.crossover_alpha + x * (1 - config.crossover_alpha);
+                    }
+            );
         };
 
         trainer() : population(config.population_size), parents(config.population_size / 2)
@@ -27,12 +34,12 @@ namespace gnnt
         template<typename Func>
         auto train(Func const &loss_func, value_type const target_loss = 0.0) -> pair<chromosome_t, uint32_t>
         {
+            auto gene_rng = rng_factory.create(gene_dist);
             auto index_rng = rng_factory.create(index_dist);
             auto prob_rng = rng_factory.create(prob_dist);
-            auto gene_rng = rng_factory.create(gene_dist);
             uint32_t current_generation = 0;
 
-            generate_population(gene_dist);
+            generate_population(gene_rng);
             calculate_loss(loss_func);
             while (current_generation++ < config.max_generations)
             {
@@ -56,11 +63,11 @@ namespace gnnt
         }
 
     private:
-        template<typename Dist>
-        void generate_population(Dist const &dist) noexcept
+        template<typename Rng>
+        void generate_population(Rng &&rng) noexcept
         {
             for (auto &chrom: population)
-                chrom.network.generate_params(dist);
+                chrom.network.generate_params(rng);
         }
 
         chromosome_t const &find_best_chromosome() const noexcept
@@ -106,17 +113,17 @@ namespace gnnt
                     first_parent.network.weights,
                     second_parent.network.weights,
                     child.network.weights,
-                    [](auto const &weights1, auto const &weights2, auto &weights_out) {
-                        for (uint32_t i = 0; i < weights1.size(); ++i)
-                            crossover_func(weights1[i], weights2[i], weights_out[i]);
+                    [](auto const &first_parent_ws, auto const &second_parent_ws, auto &child_ws) {
+                        for (uint32_t i = 0; i < first_parent_ws.size(); ++i)
+                            crossover_func(first_parent_ws[i], second_parent_ws[i], child_ws[i]);
                     }
             );
             tuple_for_each(
                     first_parent.network.biases,
                     second_parent.network.biases,
                     child.network.biases,
-                    [](auto const &biases1, auto const &biases2, auto &biases_out) {
-                        crossover_func(biases1, biases2, biases_out);
+                    [](auto const &first_parent_bs, auto const &second_parent_bs, auto &child_bs) {
+                        crossover_func(first_parent_bs, second_parent_bs, child_bs);
                     }
             );
             return child;
@@ -132,7 +139,7 @@ namespace gnnt
             {
                 auto const &first_parent = population[pair.first];
                 auto const &second_parent = population[pair.second];
-                if (rng() <= config.crossover_prob)
+                if (rng() < config.crossover_prob)
                 {
                     // Probably not the most efficient, can't move std::array...
                     children[index++] = std::move(generate_child(first_parent, second_parent));
@@ -155,17 +162,17 @@ namespace gnnt
             {
                 tuple_for_each(
                         chrom.network.weights,
-                        [&](auto &weights) {
-                            for (auto &w: weights)
-                                for (uint32_t i = 0; i < w.size(); ++i)
+                        [&](auto &layer_ws) {
+                            for (auto &neuron_ws: layer_ws)
+                                for (auto &w: neuron_ws)
                                     if (prob_rng() < config.mutation_prob)
-                                        w[i] = gene_rng();
+                                        w = gene_rng();
                         }
                 );
                 tuple_for_each(
                         chrom.network.biases,
-                        [&](auto &biases) {
-                            for (auto &b: biases)
+                        [&](auto &layer_bs) {
+                            for (auto &b: layer_bs)
                                 if (prob_rng() < config.mutation_prob)
                                     b = gene_rng();
                         }
@@ -177,7 +184,7 @@ namespace gnnt
         parents_t parents{};
 
         random_generator_factory<> rng_factory{};
-        std::normal_distribution<value_type> gene_dist{config.gene_mean, config.gene_stddev};
+        std::uniform_real_distribution<value_type> gene_dist{config.search_space[0], config.search_space[1]};
         std::uniform_int_distribution<uint32_t> index_dist{0, config.population_size - 1};
         std::uniform_real_distribution<double> prob_dist{0.0, 1.0};
     };

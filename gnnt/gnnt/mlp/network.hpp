@@ -28,28 +28,21 @@ namespace gnnt::mlp
 
         network() = default;
 
-        template<typename Dist>
-        explicit network(Dist &&dist) noexcept
+        template<typename Rng>
+        explicit network(Rng &&rng) noexcept
         {
-            generate_params(std::forward<Dist>(dist));
+            generate_params(std::forward<Rng>(rng));
         }
 
-        void generate_params()
+        template<typename Rng>
+        void generate_params(Rng &&rng) noexcept
         {
-            generate_params(std::normal_distribution(value_type{0.0}, value_type{0.3}));
-        }
-
-        template<typename Dist>
-        void generate_params(Dist &&dist) noexcept
-        {
-            auto factory = random_generator_factory{};
-            auto rng = factory.create(std::forward<Dist>(dist));
-            tuple_for_each(biases, [&](auto &b) {
-                std::generate(b.begin(), b.end(), rng);
+            tuple_for_each(weights, [&](auto &layer_ws) {
+                for (auto &ws: layer_ws)
+                    std::generate(ws.begin(), ws.end(), rng);
             });
-            tuple_for_each(weights, [&](auto &layer) {
-                for (auto &w: layer)
-                    std::generate(w.begin(), w.end(), rng);
+            tuple_for_each(biases, [&](auto &bs) {
+                std::generate(bs.begin(), bs.end(), rng);
             });
         }
 

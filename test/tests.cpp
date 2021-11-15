@@ -35,7 +35,6 @@ int main()
     std::cout << "Test images: " << dataset.test_images.size() << '\n';
     std::cout << "Train labels: " << dataset.train_labels.size() << '\n';
     std::cout << "Test labels: " << dataset.test_labels.size() << '\n';
-
     show_image(random_index, dataset);
 
     auto const &img = dataset.train_images[random_index];
@@ -44,17 +43,22 @@ int main()
 
     // Example of how to create and train models
     constexpr auto config = gnnt::trainer_config{
-            .max_generations = 100,
+            .max_generations = 1000,
             .population_size = 100,
             .mutation_prob = 0.02,
-            .crossover_alpha = 0.33
+            .crossover_alpha = 0.33,
+            .precision = 1e-3,
+            .search_space = {-5, 5}
     };
     auto trainer = gnnt::trainer<gnnt::chromosome<neural_network>, config>{};
-    auto[chrom, generations] = trainer.train([&](auto const &network) {
-        return std::abs(network(norm_img)[0] - 1.0);
-    });
-    std::cout << "Generations: " << generations << '\n';
 
+    auto[chrom, generations] = trainer.train([&](auto const &network) {
+        auto res = network(norm_img);
+        // This loss function is minimal when res[0] == res[1] == 0.5
+        return std::abs(res[0] - 0.5) + std::abs(res[1] - 0.5);
+    });
+
+    std::cout << "Generations: " << generations << '\n';
     auto out = chrom.network(norm_img);
     for (auto e: out)
         std::cout << e << ' ';

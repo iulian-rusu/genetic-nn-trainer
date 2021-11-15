@@ -7,16 +7,16 @@ namespace gnnt
 {
     namespace detail
     {
-        template<typename Tuple, typename Func, std::size_t... Indices>
+        template<typename Tuple1, typename Tuple2, typename Tuple3, typename Func, std::size_t... Indices>
         constexpr void tuple_for_each(
-                Tuple const &tuple_in1,
-                Tuple const &tuple_in2,
-                Tuple &tuple_out,
+                Tuple1 &&tuple1,
+                Tuple2 &&tuple2,
+                Tuple3 &&tuple3,
                 Func &&func,
                 std::index_sequence<Indices ...> &&
         )
         {
-            (func(std::get<Indices>(tuple_in1), std::get<Indices>(tuple_in2), std::get<Indices>(tuple_out)), ...);
+            (func(std::get<Indices>(tuple1), std::get<Indices>(tuple2), std::get<Indices>(tuple3)), ...);
         }
 
         template<typename Tuple, typename Func, std::size_t... Indices>
@@ -28,22 +28,16 @@ namespace gnnt
 
     /**
      * Applies a callable object on sets of three respective elements of a tuple-like collection.
-     * The first two tuples are considered inputs, the last tuple is a mutable out-parameter.
-     *
-     * @param tuple_in1     The first input tuple
-     * @param tuple_in2     The second input tuple
-     * @param tuple_out     The output tuple passed as mutable reference
-     * @param func          The mapped function
      */
-    template<typename Tuple, typename Func>
-    constexpr void tuple_for_each(Tuple const &tuple_in1, Tuple const &tuple_in2, Tuple &tuple_out, Func &&func)
+    template<typename Tuple1, typename Tuple2, typename Tuple3, typename Func>
+    constexpr void tuple_for_each(Tuple1 &&tuple1, Tuple2 &&tuple2, Tuple3 &&tuple3, Func &&func)
     {
         detail::tuple_for_each(
-                tuple_in1,
-                tuple_in2,
-                tuple_out,
+                std::forward<Tuple1>(tuple1),
+                std::forward<Tuple2>(tuple2),
+                std::forward<Tuple3>(tuple3),
                 std::forward<Func>(func),
-                std::make_index_sequence<std::tuple_size_v<std::decay_t<Tuple>>>{}
+                std::make_index_sequence<std::tuple_size_v<std::decay_t<Tuple1>>>{}
         );
     }
 

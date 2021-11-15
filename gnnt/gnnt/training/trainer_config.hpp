@@ -11,9 +11,8 @@ namespace gnnt
         double mutation_prob = 0.03;
         double crossover_alpha = 0.5;
         double precision = 1.0e-2;
-        double gene_mean = 0.0;
-        double gene_stddev = 0.3;
         bool elitism = true;
+        std::array<double, 2> search_space{-1.0, 1.0};
     };
 }
 #endif //GENETIC_NN_TRAINER_TRAINER_CONFIG_HPP
