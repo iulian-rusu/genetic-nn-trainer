@@ -17,13 +17,13 @@ void show_image(std::size_t index, auto const &dataset)
 using namespace gnnt::mlp;
 
 using neural_network =
-        network
+network
         <
-            float,
-            input<gnnt::image_dimension>,
-            dense<8, prelu<0.01>>,
-            dense<8, prelu<0.01>>,
-            dense<10, softmax>
+                float,
+                input<gnnt::image_dimension>,
+                dense<8, prelu<0.01>>,
+                dense<8, prelu<0.01>>,
+                dense<10, softmax>
         >;
 
 int main()
@@ -45,17 +45,20 @@ int main()
     constexpr auto config = gnnt::trainer_config{
             .max_generations = 1000,
             .population_size = 100,
-            .mutation_prob = 0.02,
+            .mutation_prob = 0.03,
             .crossover_alpha = 0.33,
-            .precision = 1e-3,
+            .precision = 1e-2,
             .search_space = {-5, 5}
     };
     auto trainer = gnnt::trainer<gnnt::chromosome<neural_network>, config>{};
 
-    auto[chrom, generations] = trainer.train([&](auto const &network) {
-        auto res = network(norm_img);
-        // This loss function is minimal when res[0] == res[1] == 0.5
-        return std::abs(res[0] - 0.5) + std::abs(res[1] - 0.5);
+    auto[chrom, generations] = trainer.train([&](auto &population) {
+        for (auto &c: population)
+        {
+            auto res = c.network(norm_img);
+            // This loss function is minimal when res[0] == res[1] == 0.5
+            c.loss = std::abs(res[0] - 0.5) + std::abs(res[1] - 0.5);
+        }
     });
 
     std::cout << "Generations: " << generations << '\n';

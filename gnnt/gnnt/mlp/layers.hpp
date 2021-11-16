@@ -28,7 +28,7 @@ namespace gnnt::mlp
         template<std::size_t I, typename Layers, typename Default>
         struct array_for_layer
         {
-            using type = std::decay_t<decltype(std::get<I - 1>(std::declval<Layers>()))>;
+            using type = std::remove_cvref_t<decltype(std::get<I - 1>(std::declval<Layers>()))>;
         };
 
         template<typename Layers, typename Default>

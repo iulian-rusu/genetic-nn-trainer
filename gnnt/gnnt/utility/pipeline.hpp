@@ -12,7 +12,7 @@ namespace gnnt
     template<std::input_iterator In, std::forward_iterator Out, typename T>
     auto normalize(In begin, In end, Out dst, T min, T max)
     {
-        std::decay_t<decltype(*dst)> const d = max - min;
+        std::remove_cvref_t<decltype(*dst)> const d = max - min;
         std::transform(begin, end, dst, [=](auto e) {
             return (e - min) / d;
         });

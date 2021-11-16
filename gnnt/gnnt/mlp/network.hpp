@@ -37,13 +37,19 @@ namespace gnnt::mlp
         template<typename Rng>
         void generate_params(Rng &&rng) noexcept
         {
-            tuple_for_each(weights, [&](auto &layer_ws) {
-                for (auto &ws: layer_ws)
-                    std::generate(ws.begin(), ws.end(), rng);
-            });
-            tuple_for_each(biases, [&](auto &bs) {
-                std::generate(bs.begin(), bs.end(), rng);
-            });
+            for_each_tuple(
+                    [&](auto &layer_ws) {
+                        for (auto &ws: layer_ws)
+                            std::generate(ws.begin(), ws.end(), rng);
+                    },
+                    weights
+            );
+            for_each_tuple(
+                    [&](auto &bs) {
+                        std::generate(bs.begin(), bs.end(), rng);
+                    },
+                    biases
+            );
         }
 
         output_t operator()(input_t const &input) const noexcept

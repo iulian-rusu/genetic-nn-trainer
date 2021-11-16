@@ -2,58 +2,39 @@
 #define GENETIC_NN_TRAINER_TUPLE_HELPERS_HPP
 
 #include <tuple>
+#include <gnnt/utility/meta.hpp>
 
 namespace gnnt
 {
     namespace detail
     {
-        template<typename Tuple1, typename Tuple2, typename Tuple3, typename Func, std::size_t... Indices>
-        constexpr void tuple_for_each(
-                Tuple1 &&tuple1,
-                Tuple2 &&tuple2,
-                Tuple3 &&tuple3,
-                Func &&func,
-                std::index_sequence<Indices ...> &&
-        )
+        template<std::size_t Index, typename Func, typename... Tuples>
+        constexpr void apply_tuples(Func &&func, Tuples &&... tuples)
         {
-            (func(std::get<Indices>(tuple1), std::get<Indices>(tuple2), std::get<Indices>(tuple3)), ...);
+            func(std::get<Index>(tuples) ...);
         }
 
-        template<typename Tuple, typename Func, std::size_t... Indices>
-        constexpr void tuple_for_each(Tuple &&tuple, Func &&func, std::index_sequence<Indices ...> &&)
+        template<typename Func, typename... Tuples,  std::size_t... Indices>
+        constexpr void for_each_tuple(std::index_sequence<Indices ...> &&, Func &&func, Tuples &&... tuples)
         {
-            (func(std::get<Indices>(tuple)), ...);
+            (apply_tuples<Indices>(std::forward<Func>(func), std::forward<Tuples>(tuples) ...), ...);
         }
     }
 
     /**
-     * Applies a callable object on sets of three respective elements of a tuple-like collection.
-     */
-    template<typename Tuple1, typename Tuple2, typename Tuple3, typename Func>
-    constexpr void tuple_for_each(Tuple1 &&tuple1, Tuple2 &&tuple2, Tuple3 &&tuple3, Func &&func)
-    {
-        detail::tuple_for_each(
-                std::forward<Tuple1>(tuple1),
-                std::forward<Tuple2>(tuple2),
-                std::forward<Tuple3>(tuple3),
-                std::forward<Func>(func),
-                std::make_index_sequence<std::tuple_size_v<std::decay_t<Tuple1>>>{}
-        );
-    }
-
-    /**
-     * Applies a callable object on each element of a tuple-like container.
+     * Calls a function for each set of tuple elements. The function arguments are obtained
+     * by simultaneously iterating the variadic tuple pack.
      *
-     * @param tuple     The type tuple to map the function onto
-     * @param func      The function used as a mapper
+     * @example:
+     * Given the tuples (a, b, c) and (x, y, z), the funtion calls func(a, x), func(b, y) and func(c, z).
      */
-    template<typename Tuple, typename Func>
-    constexpr void tuple_for_each(Tuple &&tuple, Func &&func)
+    template<typename Func, typename... Tuples>
+    constexpr void for_each_tuple(Func &&func, Tuples &&... tuples)
     {
-        detail::tuple_for_each(
-                std::forward<Tuple>(tuple),
+        detail::for_each_tuple(
+                std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<head_t<Tuples ...>>>>{},
                 std::forward<Func>(func),
-                std::make_index_sequence<std::tuple_size_v<std::decay_t<Tuple>>>{}
+                std::forward<Tuples>(tuples) ...
         );
     }
 }

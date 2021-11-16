@@ -6,23 +6,20 @@
 
 namespace gnnt
 {
-    namespace detail
-    {
-        template<typename T>
-        struct array_size_helper;
+    template<typename...>
+    struct head;
 
-        template<std::size_t N, typename T>
-        struct array_size_helper<std::array<T, N>>
-        {
-            static constexpr auto value = N;
-        };
-    }
+    template<typename Head, typename... Rest>
+    struct head<Head, Rest ...>
+    {
+        using type = Head;
+    };
+
+    template<typename... Elems>
+    using head_t = typename head<Elems ...>::type;
 
     template<std::ranges::range R>
     using value_type = std::decay_t<decltype(*(std::declval<R>().begin()))>;
-
-    template<typename T>
-    inline constexpr std::size_t array_size = detail::array_size_helper<std::decay_t<T>>::value;
 
     template<typename T>
     requires std::is_arithmetic_v<T>

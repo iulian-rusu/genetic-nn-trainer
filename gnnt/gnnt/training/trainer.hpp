@@ -31,8 +31,15 @@ namespace gnnt
         trainer() : population(config.population_size), parents(config.population_size / 2)
         {}
 
+        /**
+         * Trains a population of chromosomes to minimize a given loss function.
+         *
+         * @param loss_evaluator    A callable object that will update the population's loss after each generation
+         * @param target_loss       The optimal loss value, defaults to 0.0
+         * @return                  The best chromosome and the number of generations trained
+         */
         template<typename Func>
-        auto train(Func const &loss_func, value_type const target_loss = 0.0) -> pair<chromosome_t, uint32_t>
+        auto train(Func &&loss_evaluator, value_type const target_loss = 0.0) -> pair<chromosome_t, uint32_t>
         {
             auto gene_rng = rng_factory.create(gene_dist);
             auto index_rng = rng_factory.create(index_dist);
@@ -40,7 +47,7 @@ namespace gnnt
             uint32_t current_generation = 0;
 
             generate_population(gene_rng);
-            calculate_loss(loss_func);
+            loss_evaluator(population);
             while (current_generation++ < config.max_generations)
             {
                 auto best_chrom = find_best_chromosome();
@@ -50,7 +57,7 @@ namespace gnnt
                 selection(index_rng);
                 crossover(prob_rng);
                 mutation(prob_rng, gene_rng);
-                calculate_loss(loss_func);
+                loss_evaluator(population);
 
                 if constexpr (config.elitism)
                 {
@@ -78,13 +85,6 @@ namespace gnnt
             );
         }
 
-        template<typename Func>
-        void calculate_loss(Func const &loss_func) noexcept
-        {
-            for (auto &chrom: population)
-                chrom.loss = loss_func(chrom.network);
-        }
-
         template<typename RNG>
         uint32_t select_parent_by_tournament(RNG &&rng) noexcept
         {
@@ -109,22 +109,22 @@ namespace gnnt
         chromosome_t generate_child(chromosome_t const &first_parent, chromosome_t const &second_parent) const noexcept
         {
             chromosome_t child{};
-            tuple_for_each(
-                    first_parent.network.weights,
-                    second_parent.network.weights,
-                    child.network.weights,
+            for_each_tuple(
                     [](auto const &first_parent_ws, auto const &second_parent_ws, auto &child_ws) {
                         for (uint32_t i = 0; i < first_parent_ws.size(); ++i)
                             crossover_func(first_parent_ws[i], second_parent_ws[i], child_ws[i]);
-                    }
+                    },
+                    first_parent.network.weights,
+                    second_parent.network.weights,
+                    child.network.weights
             );
-            tuple_for_each(
-                    first_parent.network.biases,
-                    second_parent.network.biases,
-                    child.network.biases,
+            for_each_tuple(
                     [](auto const &first_parent_bs, auto const &second_parent_bs, auto &child_bs) {
                         crossover_func(first_parent_bs, second_parent_bs, child_bs);
-                    }
+                    },
+                    first_parent.network.biases,
+                    second_parent.network.biases,
+                    child.network.biases
             );
             return child;
         }
@@ -160,22 +160,22 @@ namespace gnnt
         {
             for (auto &chrom: population)
             {
-                tuple_for_each(
-                        chrom.network.weights,
+                for_each_tuple(
                         [&](auto &layer_ws) {
                             for (auto &neuron_ws: layer_ws)
                                 for (auto &w: neuron_ws)
                                     if (prob_rng() < config.mutation_prob)
                                         w = gene_rng();
-                        }
+                        },
+                        chrom.network.weights
                 );
-                tuple_for_each(
-                        chrom.network.biases,
+                for_each_tuple(
                         [&](auto &layer_bs) {
                             for (auto &b: layer_bs)
                                 if (prob_rng() < config.mutation_prob)
                                     b = gene_rng();
-                        }
+                        },
+                        chrom.network.biases
                 );
             }
         }
