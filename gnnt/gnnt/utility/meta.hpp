@@ -18,8 +18,8 @@ namespace gnnt
     template<typename... Elems>
     using head_t = typename head<Elems ...>::type;
 
-    template<std::ranges::range R>
-    using value_type = std::decay_t<decltype(*(std::declval<R>().begin()))>;
+    template<typename R>
+    using value_type = std::remove_cvref_t<decltype(*(std::declval<R>().begin()))>;
 
     template<typename T>
     requires std::is_arithmetic_v<T>

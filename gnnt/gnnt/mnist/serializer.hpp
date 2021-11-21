@@ -10,7 +10,7 @@ namespace gnnt
 {
     static inline constexpr std::size_t image_dimension = 28 * 28;
 
-    template<bidimensional_container ImageContainer, container LabelContainer>
+    template<typename ImageContainer, typename LabelContainer>
     struct basic_mnist_serializer
     {
         using dataset_t = basic_mnist_dataset<ImageContainer, LabelContainer>;
@@ -97,7 +97,7 @@ namespace gnnt
     using mnist_image = std::array<uint8_t, image_dimension>;
     using mnist_serializer = basic_mnist_serializer<std::vector<mnist_image>, std::vector<uint8_t>>;
 
-    template<bidimensional_container ImageContainer, container LabelContainer>
+    template<typename ImageContainer, typename LabelContainer>
     void write(std::string const &path, basic_mnist_dataset<ImageContainer, LabelContainer> const &dataset)
     {
         basic_mnist_serializer<ImageContainer, LabelContainer>::write(path, dataset);

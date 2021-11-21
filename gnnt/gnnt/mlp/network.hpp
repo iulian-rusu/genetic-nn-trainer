@@ -8,7 +8,7 @@
 
 namespace gnnt::mlp
 {
-    template<std::floating_point T, typename Input, typename... Layers>
+    template<typename T, typename Input, typename... Layers>
     struct network
     {
         static constexpr std::size_t num_layers = sizeof... (Layers) + 1;

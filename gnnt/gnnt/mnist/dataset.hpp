@@ -1,11 +1,11 @@
 #ifndef GENETIC_NN_TRAINER_MNIST_DATASET_HPP
 #define GENETIC_NN_TRAINER_MNIST_DATASET_HPP
 
-#include <gnnt/utility/concepts.hpp>
+#include <gnnt/utility/meta.hpp>
 
 namespace gnnt
 {
-    template<bidimensional_container ImageContainer, container LabelContainer>
+    template<typename ImageContainer, typename LabelContainer>
     struct basic_mnist_dataset
     {
         using image_t = gnnt::value_type<ImageContainer>;

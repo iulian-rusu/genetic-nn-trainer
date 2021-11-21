@@ -12,7 +12,7 @@ namespace gnnt::mlp
     {
         static constexpr auto param = A.value;
 
-        template<std::floating_point T, std::size_t N>
+        template<typename T, std::size_t N>
         constexpr void operator()(std::array<T, N> &values) const noexcept
         {
             std::transform(values.cbegin(), values.cend(), values.begin(), [](auto x) {
@@ -25,7 +25,7 @@ namespace gnnt::mlp
 
     struct sigmoid
     {
-        template<std::floating_point T, std::size_t N>
+        template<typename T, std::size_t N>
         constexpr void operator()(std::array<T, N> &values) const noexcept
         {
             std::transform(values.cbegin(), values.cend(), values.begin(), [](auto x) {
@@ -36,7 +36,7 @@ namespace gnnt::mlp
 
     struct softmax
     {
-        template<std::floating_point T, std::size_t N>
+        template<typename T, std::size_t N>
         constexpr void operator()(std::array<T, N> &values) const noexcept
         {
             std::transform(values.cbegin(), values.cend(), values.begin(), [](auto x) { return std::exp(x); });
