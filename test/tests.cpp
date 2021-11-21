@@ -17,13 +17,13 @@ void show_image(std::size_t index, auto const &dataset)
 using namespace gnnt::mlp;
 
 using neural_network =
-network
+        network
         <
-                float,
-                input<gnnt::image_dimension>,
-                dense<8, prelu<0.01>>,
-                dense<8, prelu<0.01>>,
-                dense<10, softmax>
+            float,
+            input<gnnt::image_dimension>,
+            dense<8, prelu<0.01>>,
+            dense<8, prelu<0.01>>,
+            dense<10, softmax>
         >;
 
 int main()

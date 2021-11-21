@@ -9,7 +9,7 @@ namespace gnnt
         return f(std::forward<T>(t));
     }
 
-    template<std::input_iterator In, std::forward_iterator Out, typename T>
+    template<typename In, typename Out, typename T>
     auto normalize(In begin, In end, Out dst, T min, T max)
     {
         std::remove_cvref_t<decltype(*dst)> const d = max - min;
