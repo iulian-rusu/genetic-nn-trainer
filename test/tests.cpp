@@ -45,21 +45,23 @@ int main()
     constexpr auto config = gnnt::trainer_config{
             .max_generations = 1000,
             .population_size = 100,
-            .mutation_prob = 0.03,
+            .mutation_prob = 0.04,
             .crossover_alpha = 0.33,
             .precision = 1e-2,
-            .search_space = {-5, 5}
+            .search_space = {-2, 2}
     };
     auto trainer = gnnt::trainer<gnnt::chromosome<neural_network>, config>{};
 
-    auto[chrom, generations] = trainer.train([&](auto &population) {
-        for (auto &c: population)
-        {
-            auto res = c.network(norm_img);
-            // This loss function is minimal when res[0] == res[1] == 0.5
-            c.loss = std::abs(res[0] - 0.5) + std::abs(res[1] - 0.5);
-        }
-    });
+    auto[chrom, generations] = trainer.train(
+            [&](auto &population) {
+                for (auto &c: population)
+                {
+                    auto res = c.network(norm_img);
+                    // This loss function is minimal when res[0] == res[1] == 0.5
+                    c.loss = std::abs(res[0] - 0.5) + std::abs(res[1] - 0.5);
+                }
+            }
+    );
 
     std::cout << "Generations: " << generations << '\n';
     auto out = chrom.network(norm_img);

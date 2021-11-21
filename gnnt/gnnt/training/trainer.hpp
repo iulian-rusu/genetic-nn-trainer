@@ -15,6 +15,7 @@ namespace gnnt
         using chromosome_t = Chromosome;
         using population_t = std::vector<chromosome_t>;
         using parents_t = std::vector<pair<uint32_t, uint32_t>>;
+        using train_callback = void(std::size_t, value_type);
 
         static constexpr auto crossover_func = [](auto const &xs, auto const &ys, auto &out) noexcept {
             std::transform(
@@ -35,11 +36,13 @@ namespace gnnt
          * Trains a population of chromosomes to minimize a given loss function.
          *
          * @param loss_evaluator    A callable object that will update the population's loss after each generation
+         * @param callback          A callback function called after each generation
          * @param target_loss       The optimal loss value, defaults to 0.0
          * @return                  The best chromosome and the number of generations trained
          */
         template<typename Func>
-        auto train(Func &&loss_evaluator, value_type const target_loss = 0.0) -> pair<chromosome_t, uint32_t>
+        auto train(Func &&loss_evaluator, train_callback callback, value_type const target_loss = 0.0)
+        -> pair<chromosome_t, uint32_t>
         {
             auto gene_rng = rng_factory.create(gene_dist);
             auto index_rng = rng_factory.create(index_dist);
@@ -64,9 +67,17 @@ namespace gnnt
                     auto ptr = std::max_element(population.begin(), population.end());
                     *ptr = best_chrom;
                 }
+
+                callback(current_generation, best_chrom.loss);
             }
 
             return {find_best_chromosome(), config.max_generations};
+        }
+
+        template<typename Func>
+        auto train(Func &&loss_evaluator, value_type const target_loss = 0.0)
+        {
+            return train(std::forward<Func>(loss_evaluator), [](auto...){}, target_loss);
         }
 
     private:
