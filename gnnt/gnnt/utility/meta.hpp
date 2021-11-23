@@ -1,7 +1,6 @@
 #ifndef GENETIC_NN_TRAINER_META_HPP
 #define GENETIC_NN_TRAINER_META_HPP
 
-#include <ranges>
 #include <type_traits>
 
 namespace gnnt
