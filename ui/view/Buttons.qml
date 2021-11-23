@@ -12,6 +12,8 @@ ColumnLayout {
     property int buttonWidth: 120
     property int buttonHeight: 30
 
+    property var trainModel: () => {}
+
     spacing: 20
 
     RowLayout {
@@ -79,7 +81,8 @@ ColumnLayout {
             text: "Train model"
 
             onClicked: {
-                controller.onTrainModel()
+                //controller.onTrainModel()
+                root.trainModel()
             }
         }
 

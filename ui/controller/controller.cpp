@@ -12,8 +12,17 @@ void Controller::onLoadModel(QUrl const &qlocation) {
     model->loadModel(std::move(location));
 }
 
-void Controller::onTrainModel() {
-    model->trainModel();
+void Controller::onTrainModel(QVariantList const &qgrid) {
+    std::array<float, 28 * 28> grid{};
+
+    for (qsizetype i = 0; i < qgrid.size(); ++i) {
+        auto const &row = qgrid[i].toList();
+        for (qsizetype j = 0; j < row.size(); ++j) {
+            grid[i * 28 + j] = row[j].toBool();
+        }
+    }
+
+    model->trainModel(grid);
 }
 
 void Controller::onSaveModel(QUrl const &qlocation) {
@@ -22,12 +31,12 @@ void Controller::onSaveModel(QUrl const &qlocation) {
 }
 
 void Controller::onUpdateModel(QVariantList const &qgrid) {
-    std::array<std::array<std::uint8_t, 28>, 28> grid{};
+    std::array<float, 28 * 28> grid{};
 
     for (qsizetype i = 0; i < qgrid.size(); ++i) {
         auto const &row = qgrid[i].toList();
         for (qsizetype j = 0; j < row.size(); ++j) {
-            grid[i][j] = row[j].toBool();
+            grid[i * 28 + j] = row[j].toBool();
         }
     }
 

@@ -49,6 +49,10 @@ Window {
         Buttons {
             id: buttons
             Layout.alignment: Qt.AlignHCenter
+
+            trainModel: () => {
+                controller.onTrainModel(canvas.grid)
+            }
         }
     }
 

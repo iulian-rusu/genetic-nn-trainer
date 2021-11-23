@@ -15,7 +15,6 @@ namespace gnnt
         using chromosome_t = Chromosome;
         using population_t = std::vector<chromosome_t>;
         using parents_t = std::vector<pair<uint32_t, uint32_t>>;
-        using train_callback = void(std::size_t, value_type);
 
         static constexpr auto crossover_func = [](auto const &xs, auto const &ys, auto &out) noexcept {
             std::transform(
@@ -41,7 +40,7 @@ namespace gnnt
          * @return                  The best chromosome and the number of generations trained
          */
         template<typename Func>
-        auto train(Func &&loss_evaluator, train_callback callback, value_type const target_loss = 0.0)
+        auto train(Func &&loss_evaluator, auto callback, value_type const target_loss = 0.0)
         -> pair<chromosome_t, uint32_t>
         {
             auto gene_rng = rng_factory.create(gene_dist);

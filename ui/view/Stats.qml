@@ -31,7 +31,7 @@ GridLayout {
     Label {
         id: accuracyLabel
         color: "#000000"
-        text: `Accuracy: ${accuracy.toFixed(2).length > 5 ? "" : " "}${accuracy.toFixed(2).length > 4 ? "" : "0"}${accuracy.toFixed(2)}%`
+        text: `Loss: ${accuracy.toFixed(2).length > 5 ? "" : " "}${accuracy.toFixed(2).length > 4 ? "" : "0"}${accuracy.toFixed(2)}`
     }
 
     Connections {

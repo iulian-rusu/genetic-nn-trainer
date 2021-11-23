@@ -1,11 +1,13 @@
 #include <model.hpp>
 
-Model::Model(QObject *parent) : QObject(parent) {}
+#include <iostream>
+#include <QDebug>
+
+Model::Model(QObject *parent) : QObject(parent) {
+}
 
 void Model::resetModel() {
-    /*
-     * TODO reset model
-     */
+    nn = neural_network{};
 
     send(0, 0);
     emit showPopup(QStringLiteral("Model reset"));
@@ -26,15 +28,41 @@ void Model::loadModel(std::string &&location) {
     }
 }
 
-void Model::trainModel() {
-    std::size_t generations{0};
-    double accuracy{0};
+void show_image(std::size_t index, auto const &dataset)
+{
+    auto const &img = dataset.train_images[index];
+    for (auto i = 0u; i < img.size(); ++i)
+    {
+        std::printf("%3d ", img[i]);
+        if (i % 28 == 27)
+            std::cout << '\n';
+    }
+    std::printf("\nLabel: %d\n", dataset.train_labels[index]);
+}
 
-    /*
-     * TODO train model
-     */
+void Model::trainModel(std::array<float, 28 * 28> const &grid) {
+    std::size_t random_index = 420;
+    auto const &img = dataset.train_images[random_index];
+    show_image(random_index, dataset);
+    gnnt::normalize(img.cbegin(), img.cend(), norm_img.begin(), 0, 255);
 
-    send(generations, accuracy);
+    auto [chrom, generations] = trainer.train(
+        [&](auto &population) {
+            for (auto &c: population)
+            {
+                auto res = c.network(norm_img);
+                // This loss function is minimal when res[0] == res[1] == 0.5
+                c.loss = std::abs(res[0] - 0.5) + std::abs(res[1] - 0.5);
+            }
+        },
+        [this](std::size_t generations, float loss) {
+            send(generations, loss);
+        }
+    );
+
+    nn = chrom.network;
+
+    send(generations, chrom.loss);
     emit showPopup(QStringLiteral("Model trained"));
 }
 
@@ -53,32 +81,20 @@ void Model::saveModel(std::string &&location) {
     }
 }
 
-void Model::updateModel(std::array<std::array<std::uint8_t, 28>, 28> grid) {
-    /*
-     * TODO update model if needed
-     */
-
-    computePredictions();
-}
-
-void Model::computePredictions() {
-    std::array<double, 10> predictions{};
-
-    /*
-     * TODO calculate predictions
-     */
-
+void Model::updateModel(std::array<float, 28 * 28> const &grid) {
+    std::array<float, 10> predictions{};
+    predictions = nn(grid);
     send(predictions);
 }
 
-void Model::send(std::array<double, 10> predictions) {
+void Model::send(std::array<float, 10> const &predictions) {
     QVariantList qpredictions{};
     for (auto const &prediction: predictions) {
-        qpredictions.append(QVariant::fromValue(prediction));
+        qpredictions.append(QVariant::fromValue(prediction * 100));
     }
     emit updatePredictions(qpredictions);
 }
 
-void Model::send(std::size_t generations, double accuracy) {
+void Model::send(std::size_t generations, float accuracy) {
     emit updateTrainData(generations, accuracy);
 }

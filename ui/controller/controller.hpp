@@ -15,7 +15,7 @@ public:
 public slots:
     void onResetModel();
     void onLoadModel(QUrl const &);
-    void onTrainModel();
+    void onTrainModel(QVariantList const &qgrid);
     void onSaveModel(QUrl const &);
     void onUpdateModel(QVariantList const &);
 
