@@ -38,7 +38,7 @@ int main()
     show_image(random_index, dataset);
 
     auto const &img = dataset.train_images[random_index];
-    std::array<float, gnnt::image_dimension> norm_img{};
+    gnnt::mnist_image<float> norm_img{};
     gnnt::normalize(img.cbegin(), img.cend(), norm_img.begin(), 0, 255);
 
     // Example of how to create and train models

@@ -5,6 +5,8 @@
 #include <gnnt/utility/tuple_helpers.hpp>
 #include <gnnt/utility/pipeline.hpp>
 #include <gnnt/mlp/allocators.hpp>
+#include <gnnt/mlp/serialization.hpp>
+#include <iostream>
 
 namespace gnnt::mlp
 {
@@ -37,24 +39,25 @@ namespace gnnt::mlp
         template<typename Rng>
         void generate_params(Rng &&rng) noexcept
         {
-            for_each_tuple(
-                    [&](auto &layer_ws) {
-                        for (auto &ws: layer_ws)
-                            std::generate(ws.begin(), ws.end(), rng);
-                    },
-                    weights
-            );
-            for_each_tuple(
-                    [&](auto &bs) {
-                        std::generate(bs.begin(), bs.end(), rng);
-                    },
-                    biases
-            );
+            for_each_parameter([&](auto &params) { std::generate(params.begin(), params.end(), rng); });
         }
 
         output_t operator()(input_t const &input) const noexcept
         {
             return fold(input, std::make_index_sequence<num_layers - 1>{});
+        }
+
+        void read(std::string const &path)
+        {
+            std::ifstream is(path, std::ios::binary);
+            for_each_parameter([&](auto &params) { read_range(is, params); });
+        }
+
+        void write(std::string const &path)
+        {
+            std::cout << path << '\n';
+            std::ofstream os(path.data(), std::ios::binary | std::ios::trunc);
+            for_each_parameter([&](auto const &params) { write_range(os, params); });
         }
 
     private:
@@ -75,6 +78,19 @@ namespace gnnt::mlp
         output_t fold(input_t const &input, std::index_sequence<Indices ...> &&) const noexcept
         {
             return (input  | ... | [&](auto const &x) { return feed_forward<Indices>(x); });
+        }
+
+        template<typename Func>
+        void for_each_parameter(Func &&func)
+        {
+            for_each_tuple(
+                    [&](auto &layer_ws) {
+                        for (auto &neuron_ws: layer_ws)
+                            func(neuron_ws);
+                    },
+                    weights
+            );
+            for_each_tuple(func, biases);
         }
     };
 }
