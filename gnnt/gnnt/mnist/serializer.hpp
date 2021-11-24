@@ -5,7 +5,6 @@
 #include <fstream>
 #include <filesystem>
 #include <gnnt/mnist/dataset.hpp>
-#include <gnnt/mnist/image.hpp>
 
 namespace gnnt
 {
@@ -94,10 +93,6 @@ namespace gnnt
     };
 
     using mnist_serializer = basic_mnist_serializer<std::vector<mnist_image<>>, std::vector<uint8_t>>;
-    using mnist_dataset = typename mnist_serializer::dataset_t;
-
-    template<typename T>
-    using normalized_mnist_dataset = decltype(normalize(std::declval<mnist_dataset>(), T{}, T{}));
 
     template<typename ImageContainer, typename LabelContainer>
     void write(std::string const &path, basic_mnist_dataset<ImageContainer, LabelContainer> const &dataset)

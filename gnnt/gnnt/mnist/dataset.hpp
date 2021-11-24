@@ -2,6 +2,7 @@
 #define GENETIC_NN_TRAINER_MNIST_DATASET_HPP
 
 #include <gnnt/utility/meta.hpp>
+#include <gnnt/mnist/image.hpp>
 
 namespace gnnt
 {
@@ -28,5 +29,8 @@ namespace gnnt
 
     template<typename I, typename L>
     basic_mnist_dataset(I &&, I &&, L &&, L &&) -> basic_mnist_dataset<std::decay_t<I>, std::decay_t<L>>;
+
+    template<typename T = uint8_t>
+    using mnist_dataset = basic_mnist_dataset<std::vector<mnist_image<T>>, std::vector<uint8_t>>;
 }
 #endif //GENETIC_NN_TRAINER_MNIST_DATASET_HPP

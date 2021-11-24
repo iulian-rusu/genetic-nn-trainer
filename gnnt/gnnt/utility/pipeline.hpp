@@ -25,28 +25,54 @@ namespace gnnt
     requires std::is_floating_point_v<T>
     auto normalize(basic_mnist_dataset<ImageContainer<Image>, LabelContainer> const &dataset, T min, T max)
     {
-        using normalized_image = mnist_image<T>;
+        return transform<T>(dataset, [=](auto begin, auto end, auto dst){
+            normalize(begin, end, dst, min, max);
+        });
+    }
+
+    template<typename In, typename Out, typename T>
+    requires std::is_arithmetic_v<T>
+    void threshold(In begin, In end, Out dst, T th) noexcept
+    {
+        std::transform(begin, end, dst, [=](auto e) {
+            return e >= th ? 1 : 0;
+        });
+    }
+
+    template<typename T, typename Image, template<typename> typename ImageContainer, typename LabelContainer>
+    requires std::is_arithmetic_v<T>
+    auto threshold(basic_mnist_dataset<ImageContainer<Image>, LabelContainer> const &dataset, T th)
+    {
+        return transform<T>(dataset, [=](auto begin, auto end, auto dst){
+            threshold(begin, end, dst, th);
+        });
+    }
+
+    template<typename T, typename F, typename Image, template<typename> typename ImageContainer, typename LabelContainer>
+    auto transform(basic_mnist_dataset<ImageContainer<Image>, LabelContainer> const &dataset, F &&func)
+    {
+        using transformed_image = mnist_image<T>;
 
         auto const train_size = dataset.train_images.size();
         auto const test_size = dataset.test_images.size();
-        ImageContainer<normalized_image> train_norm_images(train_size);
-        ImageContainer<normalized_image> test_norm_images(test_size);
+        ImageContainer<transformed_image> train_images(train_size);
+        ImageContainer<transformed_image> test_images(test_size);
 
         for (auto i = 0u; i < train_size; ++i)
         {
             auto const &img = dataset.train_images[i];
-            normalize(img.cbegin(), img.cend(), train_norm_images[i].begin(), min, max);
+            func(img.cbegin(), img.cend(), train_images[i].begin());
         }
 
         for (auto i = 0u; i < test_size; ++i)
         {
             auto const &img = dataset.test_images[i];
-            normalize(img.cbegin(), img.cend(), test_norm_images[i].begin(), min, max);
+            func(img.cbegin(), img.cend(), test_images[i].begin());
         }
 
         return basic_mnist_dataset{
-                std::move(train_norm_images),
-                std::move(test_norm_images),
+                std::move(train_images),
+                std::move(test_images),
                 dataset.train_labels,
                 dataset.test_labels
         };
@@ -55,12 +81,14 @@ namespace gnnt
     template<std::size_t batch_size, typename Range>
     auto batch(Range const &range) noexcept
     {
-        auto const max_offset = std::size(range) / batch_size;
+        using diff_t = std::iter_difference_t<decltype(range.cbegin())>;
 
-        return [=, offset = 0ull]() mutable noexcept -> pair<std::size_t, std::size_t> {
-            auto start = offset * batch_size;
+        auto const max_offset = std::size(range) / batch_size;
+        return [=, offset = 0ull]() mutable noexcept {
+            diff_t begin = offset * batch_size;
+            diff_t end = begin + batch_size;
             offset = (offset + 1) % max_offset;
-            return {start, start + batch_size};
+            return pair<diff_t, diff_t>{begin, end};
         };
     }
 }

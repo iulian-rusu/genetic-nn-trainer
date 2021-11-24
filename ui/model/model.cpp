@@ -14,25 +14,17 @@ void Model::train()
     constexpr int batch_size = 128;
     auto batcher = gnnt::batch<batch_size>(dataset.train_images);
     auto[a, b] = batcher();
+    auto batch_begin = dataset.train_images.cbegin() + a;
+    auto lbl_begin = dataset.train_labels.cbegin() + a;
+
     auto[chrom, generations] = trainer.train(
-            [&, start = a, stop = b](auto &population) {
-                auto const eval_one = [&](auto &c) noexcept {
-                    c.loss = batch_size;
-                    for (auto i = start; i < stop; ++i)
-                    {
-                        auto lbl = dataset.train_labels[i];
-                        auto res = c.network(dataset.train_images[i]);
-                        c.loss += std::accumulate(res.cbegin(), res.cend(), 0.0, [](auto acc, auto x) {
-                            return acc + x * x;
-                        });
-                        c.loss -= 2 * res[lbl];
-                    }
-                    c.loss /= batch_size;
-                };
+            [&](auto &population) {
                 std::for_each(
                         population.begin(),
                         population.end(),
-                        eval_one
+                        [&](auto &c) noexcept {
+                            c.loss = gnnt::categorical_crossentropy<batch_size>(c.network, batch_begin, lbl_begin);
+                        }
                 );
             },
             [&](std::size_t gens, value_type loss) {
@@ -41,6 +33,13 @@ void Model::train()
     );
     nn = chrom.network;
 
+    // How to calculate accuracy example:
+//    std::vector<std::array<value_type, 10>> preds(batch_size);
+//    for(int i = 0; i<batch_size; ++i)
+//        preds[i] = nn(dataset.train_images[i]);
+//
+//    double acc = gnnt::accuracy(preds.cbegin(), preds.cend(), dataset.train_labels.cbegin());
+
     send(generations, chrom.loss);
     emit showPopup(QStringLiteral("Model trained"));
 }
@@ -48,7 +47,6 @@ void Model::train()
 void Model::resetModel()
 {
     nn = neural_network{};
-
     send(0, 0);
     emit showPopup(QStringLiteral("Model reset"));
 }
