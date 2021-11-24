@@ -1,5 +1,6 @@
 #include <model.hpp>
 
+#include <execution>
 #include <iostream>
 #include <thread>
 
@@ -10,9 +11,10 @@ Model::Model(QObject *parent) : QObject(parent)
 
 void Model::train()
 {
-    constexpr int MAX = 1000;
-    std::vector<gnnt::mnist_image<value_type>> norm_imgs(MAX);
-    for (int i = 0; i < MAX; ++i)
+    constexpr int batch_size = 100;
+    constexpr int batch_offset = 0;
+    std::vector<gnnt::mnist_image<value_type>> norm_imgs(batch_offset + batch_size);
+    for (int i = batch_offset; i < batch_offset + batch_size; ++i)
     {
         auto const &img = dataset.train_images[i];
         gnnt::normalize(img.cbegin(), img.cend(), norm_imgs[i].begin(), 0, 255);
@@ -20,26 +22,32 @@ void Model::train()
 
     auto[chrom, generations] = trainer.train(
             [&](auto &population) {
-                for (auto &c: population) {
-                    c.loss = 0.0;
-                    for (int i = 0; i < MAX; ++i) {
+                auto const eval_one = [&](auto &c) noexcept {
+                    c.loss = batch_size;
+                    for (int i = batch_offset; i < batch_offset + batch_size; ++i)
+                    {
                         auto lbl = dataset.train_labels[i];
                         auto res = c.network(norm_imgs[i]);
                         c.loss += std::accumulate(res.cbegin(), res.cend(), 0.0, [](auto acc, auto x) {
                             return acc + x * x;
                         });
-                        c.loss += 1;
                         c.loss -= 2 * res[lbl];
                     }
-                }
+                    c.loss /= batch_size;
+                };
+                std::for_each(
+                        population.begin(),
+                        population.end(),
+                        eval_one
+                );
             },
             [&](std::size_t gens, value_type loss) {
-                send(gens, loss / MAX);
+                send(gens, loss);
             }
     );
     nn = chrom.network;
 
-    send(generations, chrom.loss / MAX);
+    send(generations, chrom.loss);
     emit showPopup(QStringLiteral("Model trained"));
 }
 
@@ -117,5 +125,5 @@ void Model::send(std::array<value_type, 10> const &predictions)
 
 void Model::send(std::size_t generations, value_type loss)
 {
-    emit updateTrainData((int)generations, (float)loss);
+    emit updateTrainData((int) generations, (float) loss);
 }

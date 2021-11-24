@@ -18,12 +18,12 @@ using neural_network =
         >;
 
 inline constexpr static auto config = gnnt::trainer_config{
-        .max_generations = 100,
+        .max_generations = 1000,
         .population_size = 100,
-        .mutation_prob = 0.1,
-        .crossover_alpha = 0.33,
+        .mutation_prob = 0.0025,
+        .crossover_alpha = 0.4,
         .precision = 1e-2,
-        .search_space = {-2, 2}
+        .search_space = {-1.0, 1.0}
 };
 
 #endif //GENETIC_NN_TRAINER_CONFIG_HPP
