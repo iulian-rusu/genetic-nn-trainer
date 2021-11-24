@@ -11,23 +11,17 @@ Model::Model(QObject *parent) : QObject(parent)
 
 void Model::train()
 {
-    constexpr int batch_size = 100;
-    constexpr int batch_offset = 0;
-    std::vector<gnnt::mnist_image<value_type>> norm_imgs(batch_offset + batch_size);
-    for (int i = batch_offset; i < batch_offset + batch_size; ++i)
-    {
-        auto const &img = dataset.train_images[i];
-        gnnt::normalize(img.cbegin(), img.cend(), norm_imgs[i].begin(), 0, 255);
-    }
-
+    constexpr int batch_size = 128;
+    auto batcher = gnnt::batch<batch_size>(dataset.train_images);
+    auto[a, b] = batcher();
     auto[chrom, generations] = trainer.train(
-            [&](auto &population) {
+            [&, start = a, stop = b](auto &population) {
                 auto const eval_one = [&](auto &c) noexcept {
                     c.loss = batch_size;
-                    for (int i = batch_offset; i < batch_offset + batch_size; ++i)
+                    for (auto i = start; i < stop; ++i)
                     {
                         auto lbl = dataset.train_labels[i];
-                        auto res = c.network(norm_imgs[i]);
+                        auto res = c.network(dataset.train_images[i]);
                         c.loss += std::accumulate(res.cbegin(), res.cend(), 0.0, [](auto acc, auto x) {
                             return acc + x * x;
                         });

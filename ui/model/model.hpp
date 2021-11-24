@@ -35,8 +35,11 @@ private:
     void send(std::array<value_type, 10> const &);
     void send(std::size_t, value_type);
 
-    gnnt::mnist_dataset dataset{gnnt::mnist_serializer::read("../data/mnist")};
-    gnnt::mnist_image<value_type> norm_img{};
+    gnnt::normalized_mnist_dataset<value_type> dataset = normalize(
+            gnnt::mnist_serializer::read("../data/mnist"),
+            value_type{0},
+            value_type{255}
+    );
     neural_network nn{};
     gnnt::trainer<gnnt::chromosome<neural_network>, config> trainer{};
 };

@@ -25,5 +25,8 @@ namespace gnnt
                   test_labels{std::forward<L>(test_lbl)}
         {}
     };
+
+    template<typename I, typename L>
+    basic_mnist_dataset(I &&, I &&, L &&, L &&) -> basic_mnist_dataset<std::decay_t<I>, std::decay_t<L>>;
 }
 #endif //GENETIC_NN_TRAINER_MNIST_DATASET_HPP

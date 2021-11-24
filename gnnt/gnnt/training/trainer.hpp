@@ -22,7 +22,7 @@ namespace gnnt
                     xs.cend(),
                     ys.cbegin(),
                     out.begin(),
-                    [](auto x, auto y) {
+                    [](auto x, auto y) noexcept {
                         return y * config.crossover_alpha + x * (1 - config.crossover_alpha);
                     }
             );
@@ -100,7 +100,7 @@ namespace gnnt
         {
             uint32_t first = rng();
             uint32_t second = rng();
-            if (second == first)
+            if (second >= first)
                 second = (second + 1) % config.population_size;
 
             return population[first].loss < population[second].loss ? first : second;
