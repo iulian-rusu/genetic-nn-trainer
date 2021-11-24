@@ -3,9 +3,12 @@
 
 #include <QObject>
 #include <QString>
+#include <QThread>
 #include <QVariantList>
+
 #include <array>
 #include <string>
+
 #include <config.hpp>
 
 class Model : public QObject {
@@ -14,14 +17,18 @@ public:
     explicit Model(QObject * = nullptr);
     void resetModel();
     void loadModel(std::string &&);
-    void trainModel(gnnt::mnist_image<value_type> const &);
     void saveModel(std::string &&);
     void updateModel(gnnt::mnist_image<value_type> const &);
+    void train();
 
 signals:
-    void updateTrainData(std::size_t, value_type);
+    void updateTrainData(int, float);
     void updatePredictions(QVariantList const &);
     void showPopup(QString const &);
+    void trainModel(std::array<float, 28 * 28> const &);
+
+private slots:
+    void onTrainModel(std::array<float, 28 * 28> const &);
 
 private:
     void computePredictions();
@@ -32,6 +39,25 @@ private:
     gnnt::mnist_image<value_type> norm_img{};
     neural_network nn{};
     gnnt::trainer<gnnt::chromosome<neural_network>, config> trainer{};
+};
+
+class WorkerThread : public QThread
+{
+Q_OBJECT
+
+public:
+    WorkerThread(Model *parent = nullptr) : QThread(parent), model(parent) { }
+
+private:
+    void run() override
+    {
+        model->train();
+    }
+signals:
+    void resultReady(const QString &s);
+
+private:
+    Model *model;
 };
 
 #endif //GENETIC_NN_TRAINER_MODEL_HPP

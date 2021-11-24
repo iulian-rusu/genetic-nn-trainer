@@ -22,7 +22,7 @@ void Controller::onTrainModel(QVariantList const &qgrid) {
         }
     }
 
-    model->trainModel(grid);
+    emit model->trainModel(grid);
 }
 
 void Controller::onSaveModel(QUrl const &qlocation) {

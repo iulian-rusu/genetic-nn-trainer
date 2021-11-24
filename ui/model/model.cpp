@@ -1,9 +1,46 @@
 #include <model.hpp>
+
 #include <iostream>
-#include <QDebug>
+#include <thread>
 
 Model::Model(QObject *parent) : QObject(parent)
 {
+    QObject::connect(this, &Model::trainModel, this, &Model::onTrainModel);
+}
+
+void Model::train()
+{
+    constexpr int MAX = 1000;
+    std::vector<gnnt::mnist_image<value_type>> norm_imgs(MAX);
+    for (int i = 0; i < MAX; ++i)
+    {
+        auto const &img = dataset.train_images[i];
+        gnnt::normalize(img.cbegin(), img.cend(), norm_imgs[i].begin(), 0, 255);
+    }
+
+    auto[chrom, generations] = trainer.train(
+            [&](auto &population) {
+                for (auto &c: population) {
+                    c.loss = 0.0;
+                    for (int i = 0; i < MAX; ++i) {
+                        auto lbl = dataset.train_labels[i];
+                        auto res = c.network(norm_imgs[i]);
+                        c.loss += std::accumulate(res.cbegin(), res.cend(), 0.0, [](auto acc, auto x) {
+                            return acc + x * x;
+                        });
+                        c.loss += 1;
+                        c.loss -= 2 * res[lbl];
+                    }
+                }
+            },
+            [&](std::size_t gens, value_type loss) {
+                send(gens, loss / MAX);
+            }
+    );
+    nn = chrom.network;
+
+    send(generations, chrom.loss / MAX);
+    emit showPopup(QStringLiteral("Model trained"));
 }
 
 void Model::resetModel()
@@ -32,42 +69,11 @@ void Model::loadModel(std::string &&location)
     }
 }
 
-void Model::trainModel(gnnt::mnist_image<value_type> const &grid)
+void Model::onTrainModel(gnnt::mnist_image<value_type> const &grid)
 {
-    int MAX = 1000;
-    std::vector<gnnt::mnist_image<value_type>> norm_imgs(MAX);
-    for (int i = 0; i < MAX; ++i)
-    {
-        auto const &img = dataset.train_images[i];
-        gnnt::normalize(img.cbegin(), img.cend(), norm_imgs[i].begin(), 0, 255);
-    }
-
-    auto[chrom, generations] = trainer.train(
-            [&](auto &population) {
-                for (auto &c: population)
-                {
-                    c.loss = 0.0;
-                    for (int i = 0; i < MAX; ++i)
-                    {
-                        auto lbl = dataset.train_labels[i];
-                        auto res = c.network(norm_imgs[i]);
-                        c.loss += std::accumulate(res.cbegin(), res.cend(), 0.0, [](auto acc, auto x) {
-                            return acc + x * x;
-                        });
-                        c.loss += 1;
-                        c.loss -= 2 * res[lbl];
-                    }
-                }
-            },
-            [this](std::size_t gens, value_type loss) {
-                send(gens, loss);
-            }
-    );
-
-    nn = chrom.network;
-
-    send(generations, chrom.loss);
-    emit showPopup(QStringLiteral("Model trained"));
+    auto *workerThread = new WorkerThread(this);
+    connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
+    workerThread->start();
 }
 
 void Model::saveModel(std::string &&location)
@@ -111,5 +117,5 @@ void Model::send(std::array<value_type, 10> const &predictions)
 
 void Model::send(std::size_t generations, value_type loss)
 {
-    emit updateTrainData(generations, loss);
+    emit updateTrainData((int)generations, (float)loss);
 }
