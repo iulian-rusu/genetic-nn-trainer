@@ -11,7 +11,7 @@ Model::Model(QObject *parent) : QObject(parent)
 
 void Model::train()
 {
-    constexpr int batch_size = 128;
+    constexpr int batch_size = 1024;
     auto batcher = gnnt::batch<batch_size>(dataset.train_images);
     auto[a, b] = batcher();
     auto batch_begin = dataset.train_images.cbegin() + a;
@@ -34,12 +34,12 @@ void Model::train()
     nn = chrom.network;
 
     // How to calculate accuracy example:
-//    std::vector<std::array<value_type, 10>> preds(batch_size);
-//    for(int i = 0; i<batch_size; ++i)
-//        preds[i] = nn(dataset.train_images[i]);
-//
-//    double acc = gnnt::accuracy(preds.cbegin(), preds.cend(), dataset.train_labels.cbegin());
+    std::vector<std::array<value_type, 10>> preds(batch_size);
+    for (auto i = 0u; i < preds.size(); ++i)
+        preds[i] = nn(dataset.train_images[i]);
 
+    double acc = gnnt::accuracy(preds.cbegin(), preds.cend(), dataset.train_labels.cbegin());
+    std::cout << "Acucracy over " << preds.size() << " test images: " << acc << '\n';
     send(generations, chrom.loss);
     emit showPopup(QStringLiteral("Model trained"));
 }

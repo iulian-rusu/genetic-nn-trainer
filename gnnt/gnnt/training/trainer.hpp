@@ -17,11 +17,7 @@ namespace gnnt
         using parents_t = std::vector<pair<uint32_t, uint32_t>>;
 
         static constexpr auto crossover_func = [](auto const &xs, auto const &ys, auto &out) noexcept {
-            std::transform(
-                    xs.cbegin(),
-                    xs.cend(),
-                    ys.cbegin(),
-                    out.begin(),
+            std::transform(xs.cbegin(), xs.cend(), ys.cbegin(), out.begin(),
                     [](auto x, auto y) noexcept {
                         return y * config.crossover_alpha + x * (1 - config.crossover_alpha);
                     }
