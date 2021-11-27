@@ -17,7 +17,6 @@ namespace gnnt
             auto label = *label_iter;
             auto preds = model(*it);
             loss -= std::log(preds[label]);
-
         }
         return loss / batch_size;
     }

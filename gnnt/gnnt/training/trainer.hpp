@@ -35,8 +35,8 @@ namespace gnnt
          * @param target_loss       The optimal loss value, defaults to 0.0
          * @return                  The best chromosome and the number of generations trained
          */
-        template<typename Func>
-        auto train(Func &&loss_evaluator, auto callback, value_type const target_loss = 0.0)
+        template<typename Func, typename Callback>
+        auto train(Func &&loss_evaluator, Callback &&callback, value_type const target_loss = 0.0)
         -> pair<chromosome_t, uint32_t>
         {
             auto gene_rng = rng_factory.create(gene_dist);
@@ -46,7 +46,7 @@ namespace gnnt
 
             generate_population(gene_rng);
             loss_evaluator(population);
-            while (current_generation++ < config.max_generations)
+            while (++current_generation <= config.max_generations)
             {
                 auto best_chrom = find_best_chromosome();
                 if (std::abs(best_chrom.loss - target_loss) < config.precision)
@@ -62,7 +62,6 @@ namespace gnnt
                     auto ptr = std::max_element(population.begin(), population.end());
                     *ptr = best_chrom;
                 }
-
                 callback(current_generation, best_chrom.loss);
             }
 

@@ -1,9 +1,9 @@
 #ifndef GENETIC_NN_TRAINER_ACTIVATIONS_HPP
 #define GENETIC_NN_TRAINER_ACTIVATIONS_HPP
 
-#include <concepts>
 #include <algorithm>
 #include <gnnt/utility/meta.hpp>
+#include <iostream>
 
 namespace gnnt::mlp
 {
@@ -39,9 +39,20 @@ namespace gnnt::mlp
         template<typename T, std::size_t N>
         constexpr void operator()(std::array<T, N> &values) const noexcept
         {
-            std::transform(values.cbegin(), values.cend(), values.begin(), [](auto x) { return std::exp(x); });
-            auto const sum = std::accumulate(values.cbegin(), values.cend(), 0.0);
-            std::transform(values.cbegin(), values.cend(), values.begin(), [=](auto x) { return x / sum; });
+            const auto maximum = *std::max_element(values.cbegin(), values.cend());
+            auto const sum = std::accumulate(
+                    values.cbegin(), values.cend(), 0.0,
+                    [=](auto acc, auto x) {
+                        return acc + std::exp(x - maximum);
+                    }
+            );
+            auto const offset = maximum + std::log(sum);
+            std::transform(
+                    values.cbegin(), values.cend(), values.begin(),
+                    [=](auto x) {
+                        return std::exp(x - offset);
+                    }
+            );
         }
     };
 }

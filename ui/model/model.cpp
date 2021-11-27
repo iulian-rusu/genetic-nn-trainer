@@ -7,15 +7,15 @@
 Model::Model(QObject *parent) : QObject(parent)
 {
     QObject::connect(this, &Model::trainModel, this, &Model::onTrainModel);
+    std::cout << "Train images: " << dataset.train_images.size() << '\n';
+    std::cout << "Test images: " << dataset.test_images.size() << '\n';
 }
 
 void Model::train()
 {
-    constexpr int batch_size = 1024;
-    auto batcher = gnnt::batch<batch_size>(dataset.train_images);
-    auto[a, b] = batcher();
-    auto batch_begin = dataset.train_images.cbegin() + a;
-    auto lbl_begin = dataset.train_labels.cbegin() + a;
+    constexpr std::size_t batch_size = 12000;
+    auto batch_begin = dataset.train_images.cbegin();
+    auto lbl_begin = dataset.train_labels.cbegin();
 
     auto[chrom, generations] = trainer.train(
             [&](auto &population) {
@@ -27,8 +27,8 @@ void Model::train()
                         }
                 );
             },
-            [&](std::size_t gens, value_type loss) {
-                send(gens, loss);
+            [&](std::size_t gen, value_type loss) {
+                send(gen, loss);
             }
     );
     nn = chrom.network;
@@ -37,9 +37,15 @@ void Model::train()
     std::vector<std::array<value_type, 10>> preds(batch_size);
     for (auto i = 0u; i < preds.size(); ++i)
         preds[i] = nn(dataset.train_images[i]);
-
     double acc = gnnt::accuracy(preds.cbegin(), preds.cend(), dataset.train_labels.cbegin());
-    std::cout << "Acucracy over " << preds.size() << " test images: " << acc << '\n';
+    std::cout << "Acucracy over " << preds.size() << " train images: " << acc << '\n';
+
+    std::vector<std::array<value_type, 10>> test_preds(dataset.test_images.size());
+    for (auto i = 0u; i < test_preds.size(); ++i)
+        test_preds[i] = nn(dataset.test_images[i]);
+    acc = gnnt::accuracy(test_preds.cbegin(), test_preds.cend(), dataset.test_labels.cbegin());
+    std::cout << "Acucracy over " << test_preds.size() << " test images: " << acc << '\n';
+
     send(generations, chrom.loss);
     emit showPopup(QStringLiteral("Model trained"));
 }

@@ -21,11 +21,11 @@ namespace gnnt
         });
     }
 
-    template<typename T, typename Image, template<typename> typename ImageContainer, typename LabelContainer>
-    requires std::is_floating_point_v<T>
-    auto normalize(basic_mnist_dataset<ImageContainer<Image>, LabelContainer> const &dataset, T min, T max)
+    template<typename To, typename Value, typename Image, template<typename> typename ImageContainer, typename LabelContainer>
+    requires std::is_floating_point_v<Value>
+    auto normalize(basic_mnist_dataset<ImageContainer<Image>, LabelContainer> const &dataset, Value min, Value max)
     {
-        return transform<T>(dataset, [=](auto begin, auto end, auto dst){
+        return transform<To>(dataset, [=](auto begin, auto end, auto dst) {
             normalize(begin, end, dst, min, max);
         });
     }
@@ -39,11 +39,11 @@ namespace gnnt
         });
     }
 
-    template<typename T, typename Image, template<typename> typename ImageContainer, typename LabelContainer>
-    requires std::is_arithmetic_v<T>
-    auto threshold(basic_mnist_dataset<ImageContainer<Image>, LabelContainer> const &dataset, T th)
+    template<typename T, typename Value, typename Image, template<typename> typename ImageContainer, typename LabelContainer>
+    requires std::is_arithmetic_v<Value>
+    auto threshold(basic_mnist_dataset<ImageContainer<Image>, LabelContainer> const &dataset, Value th)
     {
-        return transform<T>(dataset, [=](auto begin, auto end, auto dst){
+        return transform<T>(dataset, [=](auto begin, auto end, auto dst) {
             threshold(begin, end, dst, th);
         });
     }
@@ -75,6 +75,58 @@ namespace gnnt
                 std::move(test_images),
                 dataset.train_labels,
                 dataset.test_labels
+        };
+    }
+
+    template<typename Condition, typename ImageContainer, typename LabelContainer>
+    auto filter(basic_mnist_dataset<ImageContainer, LabelContainer> const &dataset, Condition &&cond)
+    {
+        ImageContainer train_images{};
+        ImageContainer test_images{};
+        LabelContainer train_labels{};
+        LabelContainer test_labels{};
+
+        auto const train_size = dataset.train_images.size();
+        auto const test_size = dataset.test_images.size();
+        std::size_t filtered_train_size = 0;
+        std::size_t filtered_test_size = 0;
+
+        for (auto i = 0u; i < train_size; ++i)
+            if (cond(dataset.train_labels[i]))
+                ++filtered_train_size;
+
+        for (auto i = 0u; i < test_size; ++i)
+            if (cond(dataset.test_labels[i]))
+                ++filtered_test_size;
+
+        train_images.reserve(filtered_train_size);
+        test_images.reserve(filtered_test_size);
+        train_labels.reserve(filtered_train_size);
+        test_labels.reserve(filtered_test_size);
+
+        for (auto i = 0u; i < train_size; ++i)
+        {
+            if (cond(dataset.train_labels[i]))
+            {
+                train_images.push_back(dataset.train_images[i]);
+                train_labels.push_back(dataset.train_labels[i]);
+            }
+        }
+
+        for (auto i = 0u; i < test_size; ++i)
+        {
+            if (cond(dataset.test_labels[i]))
+            {
+                test_images.push_back(dataset.test_images[i]);
+                test_labels.push_back(dataset.test_labels[i]);
+            }
+        }
+
+        return basic_mnist_dataset{
+                std::move(train_images),
+                std::move(test_images),
+                std::move(train_labels),
+                std::move(test_labels)
         };
     }
 
