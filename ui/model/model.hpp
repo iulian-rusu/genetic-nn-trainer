@@ -25,10 +25,10 @@ signals:
     void updateTrainData(int, float);
     void updatePredictions(QVariantList const &);
     void showPopup(QString const &);
-    void trainModel(std::array<float, 28 * 28> const &);
+    void trainModel(gnnt::mnist_image<value_type> const &);
 
 private slots:
-    void onTrainModel(std::array<float, 28 * 28> const &);
+    void onTrainModel(gnnt::mnist_image<value_type> const &);
 
 private:
     void send(std::array<value_type, 10> const &);

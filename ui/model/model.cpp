@@ -13,15 +13,14 @@ Model::Model(QObject *parent) : QObject(parent)
 
 void Model::train()
 {
-    constexpr std::size_t batch_size = 12000;
+    constexpr std::size_t batch_size = 256;
     auto batch_begin = dataset.train_images.cbegin();
     auto lbl_begin = dataset.train_labels.cbegin();
 
     auto[chrom, generations] = trainer.train(
             [&](auto &population) {
                 std::for_each(
-                        population.begin(),
-                        population.end(),
+                        population.begin(), population.end(),
                         [&](auto &c) noexcept {
                             c.loss = gnnt::categorical_crossentropy<batch_size>(c.network, batch_begin, lbl_begin);
                         }

@@ -13,7 +13,7 @@ void Controller::onLoadModel(QUrl const &qlocation) {
 }
 
 void Controller::onTrainModel(QVariantList const &qgrid) {
-    std::array<float, 28 * 28> grid{};
+    gnnt::mnist_image<value_type> grid{};
 
     for (qsizetype i = 0; i < qgrid.size(); ++i) {
         auto const &row = qgrid[i].toList();
@@ -31,7 +31,7 @@ void Controller::onSaveModel(QUrl const &qlocation) {
 }
 
 void Controller::onUpdateModel(QVariantList const &qgrid) {
-    std::array<float, 28 * 28> grid{};
+    gnnt::mnist_image<value_type> grid{};
 
     for (qsizetype i = 0; i < qgrid.size(); ++i) {
         auto const &row = qgrid[i].toList();

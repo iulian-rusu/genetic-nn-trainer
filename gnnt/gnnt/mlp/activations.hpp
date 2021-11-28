@@ -39,7 +39,7 @@ namespace gnnt::mlp
         template<typename T, std::size_t N>
         constexpr void operator()(std::array<T, N> &values) const noexcept
         {
-            const auto maximum = *std::max_element(values.cbegin(), values.cend());
+            auto const maximum = *std::max_element(values.cbegin(), values.cend());
             auto const sum = std::accumulate(
                     values.cbegin(), values.cend(), 0.0,
                     [=](auto acc, auto x) {
