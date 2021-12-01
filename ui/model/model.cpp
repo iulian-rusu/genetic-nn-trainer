@@ -13,16 +13,27 @@ Model::Model(QObject *parent) : QObject(parent)
 
 void Model::train()
 {
-    constexpr std::size_t batch_size = 12000;
-    auto batch_begin = dataset.train_images.cbegin();
-    auto lbl_begin = dataset.train_labels.cbegin();
+    constexpr std::size_t batch_size = 256;
+    auto batcher = gnnt::batch<batch_size>(dataset.train_images);
+    auto img_begin = dataset.train_images.cbegin();
+    auto labels_begin = dataset.train_labels.cbegin();
 
     auto[chrom, generations] = trainer.train(
             [&](auto &population) {
+                auto [a, b] = batcher();
+                auto img_batch_begin = img_begin + a;
+                auto img_batch_end = img_begin + b;
+                auto labels_batch_begin = labels_begin + a;
                 std::for_each(
                         population.begin(), population.end(),
                         [&](auto &c) noexcept {
-                            c.loss = gnnt::categorical_crossentropy<batch_size>(c.network, batch_begin, lbl_begin);
+                            c.loss = gnnt::categorical_crossentropy(
+                                    std::execution::unseq,
+                                    c.network,
+                                    img_batch_begin,
+                                    img_batch_end,
+                                    labels_batch_begin
+                            );
                         }
                 );
             },
@@ -33,17 +44,21 @@ void Model::train()
     nn = chrom.network;
 
     // How to calculate accuracy example:
-    std::vector<std::array<value_type, 10>> preds(batch_size);
-    for (auto i = 0u; i < preds.size(); ++i)
-        preds[i] = nn(dataset.train_images[i]);
-    auto const train_acc = gnnt::accuracy(preds.cbegin(), preds.cend(), dataset.train_labels.cbegin());
-    std::cout << "Accuracy over " << preds.size() << " train images: " << train_acc << '\n';
+    auto const train_acc = gnnt::accuracy(
+            nn,
+            dataset.train_images.cbegin(),
+            dataset.train_images.cend(),
+            dataset.train_labels.cbegin()
+    );
+    std::cout << "Accuracy over " << dataset.train_images.size() << " train images: " << train_acc << '\n';
 
-    std::vector<std::array<value_type, 10>> test_preds(dataset.test_images.size());
-    for (auto i = 0u; i < test_preds.size(); ++i)
-        test_preds[i] = nn(dataset.test_images[i]);
-    auto const test_acc = gnnt::accuracy(test_preds.cbegin(), test_preds.cend(), dataset.test_labels.cbegin());
-    std::cout << "Accuracy over " << test_preds.size() << " test images: " << test_acc << '\n';
+    auto const test_acc = gnnt::accuracy(
+            nn,
+            dataset.test_images.cbegin(),
+            dataset.test_images.cend(),
+            dataset.test_labels.cbegin()
+    );
+    std::cout << "Accuracy over " << dataset.test_images.size() << " test images: " << test_acc << '\n';
 
     send(generations, chrom.loss, (value_type)train_acc, (value_type)test_acc);
     emit showPopup(QStringLiteral("Model trained"));

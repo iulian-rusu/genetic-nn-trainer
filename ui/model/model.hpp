@@ -37,7 +37,7 @@ private:
     gnnt::mnist_dataset<value_type> dataset = gnnt::normalize<value_type>(
             gnnt::filter(
                     gnnt::mnist_serializer::read("../data/mnist"),
-                    [](auto lbl) { return lbl == 0 || lbl == 1; }
+                    [](auto lbl) { return lbl < 3; }
             ),
             0, 255
     );

@@ -21,9 +21,9 @@ namespace gnnt
         });
     }
 
-    template<typename To, typename Value, typename Image, template<typename> typename ImageContainer, typename LabelContainer>
+    template<typename To, typename Value, typename Dataset>
     requires std::is_arithmetic_v<Value>
-    auto normalize(basic_mnist_dataset<ImageContainer<Image>, LabelContainer> const &dataset, Value min, Value max)
+    auto normalize(Dataset const &dataset, Value min, Value max)
     {
         return transform<To>(dataset, [=](auto begin, auto end, auto dst) {
             normalize(begin, end, dst, min, max);
@@ -39,19 +39,19 @@ namespace gnnt
         });
     }
 
-    template<typename T, typename Value, typename Image, template<typename> typename ImageContainer, typename LabelContainer>
+    template<typename To, typename Value, typename Dataset>
     requires std::is_arithmetic_v<Value>
-    auto threshold(basic_mnist_dataset<ImageContainer<Image>, LabelContainer> const &dataset, Value th)
+    auto threshold(Dataset const &dataset, Value th)
     {
-        return transform<T>(dataset, [=](auto begin, auto end, auto dst) {
+        return transform<To>(dataset, [=](auto begin, auto end, auto dst) {
             threshold(begin, end, dst, th);
         });
     }
 
-    template<typename T, typename F, typename Image, template<typename> typename ImageContainer, typename LabelContainer>
+    template<typename To, typename F, typename Image, typename LabelContainer, template<typename> typename ImageContainer>
     auto transform(basic_mnist_dataset<ImageContainer<Image>, LabelContainer> const &dataset, F &&func)
     {
-        using transformed_image = mnist_image<T>;
+        using transformed_image = mnist_image<To>;
 
         auto const train_size = dataset.train_images.size();
         auto const test_size = dataset.test_images.size();
@@ -133,14 +133,15 @@ namespace gnnt
     template<std::size_t batch_size, typename Range>
     auto batch(Range const &range) noexcept
     {
-        using diff_t = std::iter_difference_t<decltype(range.cbegin())>;
+        using iter_t = decltype(std::cbegin(range));
+        using diff_t = std::iter_difference_t<iter_t>;
 
         auto const max_offset = std::size(range) / batch_size;
         return [=, offset = 0ull]() mutable noexcept {
-            diff_t begin = offset * batch_size;
-            diff_t end = begin + batch_size;
+            diff_t from = offset * batch_size;
+            diff_t until = from + batch_size;
             offset = (offset + 1) % max_offset;
-            return pair<diff_t, diff_t>{begin, end};
+            return pair<diff_t, diff_t>{from, until};
         };
     }
 }
