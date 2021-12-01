@@ -34,12 +34,12 @@ private:
     void send(std::array<value_type, 10> const &);
     void send(std::size_t, value_type, value_type, value_type);
 
-    gnnt::mnist_dataset<value_type> dataset = gnnt::threshold<value_type>(
+    gnnt::mnist_dataset<value_type> dataset = gnnt::normalize<value_type>(
             gnnt::filter(
                     gnnt::mnist_serializer::read("../data/mnist"),
                     [](auto lbl) { return lbl == 0 || lbl == 1; }
             ),
-            128
+            0, 255
     );
     neural_network nn{};
     gnnt::trainer<gnnt::chromosome<neural_network>, config> trainer{};

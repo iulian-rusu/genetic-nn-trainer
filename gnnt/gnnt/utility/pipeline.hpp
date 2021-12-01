@@ -22,7 +22,7 @@ namespace gnnt
     }
 
     template<typename To, typename Value, typename Image, template<typename> typename ImageContainer, typename LabelContainer>
-    requires std::is_floating_point_v<Value>
+    requires std::is_arithmetic_v<Value>
     auto normalize(basic_mnist_dataset<ImageContainer<Image>, LabelContainer> const &dataset, Value min, Value max)
     {
         return transform<To>(dataset, [=](auto begin, auto end, auto dst) {

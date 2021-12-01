@@ -8,7 +8,7 @@ void Controller::onResetModel() {
 }
 
 void Controller::onLoadModel(QUrl const &qlocation) {
-    auto location = qlocation.toString().toStdString();
+    auto location = qlocation.toLocalFile().toStdString();
     model->loadModel(std::move(location));
 }
 
@@ -26,7 +26,7 @@ void Controller::onTrainModel(QVariantList const &qgrid) {
 }
 
 void Controller::onSaveModel(QUrl const &qlocation) {
-    auto location = qlocation.toString().toStdString();
+    auto location = qlocation.toLocalFile().toStdString();
     model->saveModel(std::move(location));
 }
 

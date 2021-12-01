@@ -13,7 +13,7 @@ Model::Model(QObject *parent) : QObject(parent)
 
 void Model::train()
 {
-    constexpr std::size_t batch_size = 256;
+    constexpr std::size_t batch_size = 12000;
     auto batch_begin = dataset.train_images.cbegin();
     auto lbl_begin = dataset.train_labels.cbegin();
 
@@ -45,7 +45,7 @@ void Model::train()
     acc = gnnt::accuracy(test_preds.cbegin(), test_preds.cend(), dataset.test_labels.cbegin());
     std::cout << "Accuracy over " << test_preds.size() << " test images: " << acc << '\n';
 
-    send(generations, chrom.loss, acc, 0);
+    send(generations, chrom.loss, (value_type)acc, 0);
     emit showPopup(QStringLiteral("Model trained"));
 }
 
@@ -58,28 +58,17 @@ void Model::resetModel()
 
 void Model::loadModel(std::string &&location)
 {
-    bool modelLoaded = false;
     try
     {
         nn.read(location);
-        modelLoaded = true;
-    } catch (...)
-    {
-        std::cerr << "bruh\n";
-    }
-
-    if (modelLoaded)
-    {
-        emit send(0, 0, 0, 0); // TODO send something?
         emit showPopup(QStringLiteral("Model loaded"));
-    }
-    else
+    } catch (...)
     {
         emit showPopup(QStringLiteral("Could not load model"));
     }
 }
 
-void Model::onTrainModel(gnnt::mnist_image<value_type> const &grid)
+void Model::onTrainModel(gnnt::mnist_image<value_type> const &)
 {
     auto *workerThread = new WorkerThread(this);
     connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
@@ -88,21 +77,11 @@ void Model::onTrainModel(gnnt::mnist_image<value_type> const &grid)
 
 void Model::saveModel(std::string &&location)
 {
-    bool modelSaved = false;
     try
     {
         nn.write(location);
-        modelSaved = true;
-    } catch (...)
-    {
-        std::cerr << "bruh\n";
-    }
-
-    if (modelSaved)
-    {
         emit showPopup(QStringLiteral("Model saved"));
-    }
-    else
+    } catch (...)
     {
         emit showPopup(QStringLiteral("Could not save model"));
     }

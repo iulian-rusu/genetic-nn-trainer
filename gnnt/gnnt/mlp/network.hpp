@@ -66,7 +66,7 @@ namespace gnnt::mlp
         {
             auto const &w = std::get<I>(weights);
             auto const &b = std::get<I>(biases);
-            layer_t<I + 1> result{};
+            layer_t<I + 1> result;
 
             for (std::size_t i = 0; i < result.size(); ++i)
                 result[i] = std::inner_product(input.cbegin(), input.cend(), w[i].cbegin(), 0.0) + b[i];

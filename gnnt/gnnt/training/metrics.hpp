@@ -1,6 +1,9 @@
 #ifndef GENETIC_NN_TRAINER_METRICS_HPP
 #define GENETIC_NN_TRAINER_METRICS_HPP
 
+#include <execution>
+#include <numeric>
+
 namespace gnnt
 {
     /**
@@ -12,13 +15,14 @@ namespace gnnt
         using value_type = typename Model::value_type;
 
         static constexpr double epsilon = 1e-12;
-        value_type loss = 0.0;
-        for (auto it = data_begin; it != data_begin + batch_size; ++it, ++label_iter)
-        {
-            auto label = *label_iter;
-            auto preds = model(*it);
-            loss -= std::log(preds[label] + epsilon);
-        }
+        value_type loss = std::transform_reduce(
+                std::execution::par_unseq, data_begin, data_begin + batch_size, label_iter, value_type{0.0},
+                std::plus<>{},
+                [&](auto const &data, auto lbl) {
+                    auto preds = model(data);
+                    return -std::log(preds[lbl] + epsilon);
+                }
+        );
         return loss / batch_size;
     }
 
