@@ -13,7 +13,7 @@ Model::Model(QObject *parent) : QObject(parent)
 
 void Model::train()
 {
-    constexpr std::size_t batch_size = 256;
+    constexpr std::size_t batch_size = 128;
     auto batcher = gnnt::batch<batch_size>(dataset.train_images);
     auto img_begin = dataset.train_images.cbegin();
     auto labels_begin = dataset.train_labels.cbegin();
@@ -39,7 +39,8 @@ void Model::train()
             },
             [&](std::size_t gen, value_type loss) {
                 send(gen, loss, 0, 0);
-            }
+            },
+            gnnt::chromosome{nn}
     );
     nn = chrom.network;
 

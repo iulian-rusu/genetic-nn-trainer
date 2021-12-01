@@ -19,7 +19,7 @@ using neural_network =
 
 inline constexpr static auto config = gnnt::trainer_config{
         .max_generations = 5000,
-        .population_size = 100,
+        .population_size = 150,
         .mutation_prob = 0.0015,
         .crossover_alpha = 1.0 / 3,
         .precision = 0.1,

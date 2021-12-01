@@ -12,13 +12,15 @@ namespace gnnt
         using value_type = typename Network::value_type;
         using network_t = Network;
 
-        value_type loss = std::numeric_limits<value_type>::max();
         network_t network{};
+        value_type loss = std::numeric_limits<value_type>::max();
 
         constexpr std::partial_ordering operator<=>(chromosome const &other) const noexcept
         {
             return loss <=> other.loss;
         }
     };
+    template<typename Network>
+    chromosome(Network &&) -> chromosome<std::remove_cvref_t<Network>>;
 }
 #endif //GENETIC_NN_TRAINER_CHROMOSOME_HPP

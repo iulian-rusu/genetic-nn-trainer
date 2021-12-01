@@ -37,7 +37,7 @@ namespace gnnt
          * @return                  The best chromosome and the number of generations trained
          */
         template<typename Func, typename Callback>
-        auto train(Func &&loss_evaluator, Callback &&callback, value_type const target_loss = 0.0)
+        auto train(Func &&loss_evaluator, Callback &&callback, chromosome_t const &seed)
         -> pair<chromosome_t, uint32_t>
         {
             auto gene_rng = rng_factory.create(gene_dist);
@@ -46,11 +46,12 @@ namespace gnnt
             uint32_t current_generation = 0;
 
             generate_population(gene_rng);
+            population[0] = seed;
             loss_evaluator(population);
             while (++current_generation <= config.max_generations)
             {
                 auto best_chrom = find_best_chromosome();
-                if (std::abs(best_chrom.loss - target_loss) <= config.precision)
+                if (std::abs(best_chrom.loss) <= config.precision)
                     return {best_chrom, current_generation};
 
                 selection(index_rng);
@@ -70,9 +71,9 @@ namespace gnnt
         }
 
         template<typename Func>
-        auto train(Func &&loss_evaluator, value_type const target_loss = 0.0)
+        auto train(Func &&loss_evaluator, chromosome_t const &seed)
         {
-            return train(std::forward<Func>(loss_evaluator), [](auto...){}, target_loss);
+            return train(std::forward<Func>(loss_evaluator), [](auto...){}, seed);
         }
 
     private:
@@ -112,24 +113,24 @@ namespace gnnt
             }
         }
 
-        chromosome_t generate_child(chromosome_t const &first_parent, chromosome_t const &second_parent) const noexcept
+        chromosome_t generate_child(chromosome_t const &parent1, chromosome_t const &parent2) const noexcept
         {
-            chromosome_t child{};
+            chromosome_t child;
             for_each_tuple(
-                    [](auto const &first_parent_ws, auto const &second_parent_ws, auto &child_ws) {
-                        for (uint32_t i = 0; i < first_parent_ws.size(); ++i)
-                            crossover_func(first_parent_ws[i], second_parent_ws[i], child_ws[i]);
+                    [](auto const &parent1_ws, auto const &parent2_ws, auto &child_ws) {
+                        for (uint32_t i = 0; i < parent1_ws.size(); ++i)
+                            crossover_func(parent1_ws[i], parent2_ws[i], child_ws[i]);
                     },
-                    first_parent.network.weights,
-                    second_parent.network.weights,
+                    parent1.network.weights,
+                    parent2.network.weights,
                     child.network.weights
             );
             for_each_tuple(
-                    [](auto const &first_parent_bs, auto const &second_parent_bs, auto &child_bs) {
-                        crossover_func(first_parent_bs, second_parent_bs, child_bs);
+                    [](auto const &parent1_bs, auto const &parent2_bs, auto &child_bs) {
+                        crossover_func(parent1_bs, parent2_bs, child_bs);
                     },
-                    first_parent.network.biases,
-                    second_parent.network.biases,
+                    parent1.network.biases,
+                    parent2.network.biases,
                     child.network.biases
             );
             return child;
@@ -143,18 +144,17 @@ namespace gnnt
 
             for (auto const pair: parents)
             {
-                auto const &first_parent = population[pair.first];
-                auto const &second_parent = population[pair.second];
+                auto const &parent1 = population[pair.first];
+                auto const &parent2 = population[pair.second];
                 if (rng() < config.crossover_prob)
                 {
-                    // Probably not the most efficient, can't move std::array...
-                    children[index++] = std::move(generate_child(first_parent, second_parent));
-                    children[index++] = std::move(generate_child(second_parent, first_parent));
+                    children[index++] = std::move(generate_child(parent1, parent2));
+                    children[index++] = std::move(generate_child(parent2, parent1));
                 }
                 else
                 {
-                    children[index++] = first_parent;
-                    children[index++] = second_parent;
+                    children[index++] = parent1;
+                    children[index++] = parent2;
                 }
             }
 
