@@ -18,7 +18,7 @@ void Controller::onTrainModel(QVariantList const &qgrid) {
     for (qsizetype i = 0; i < qgrid.size(); ++i) {
         auto const &row = qgrid[i].toList();
         for (qsizetype j = 0; j < row.size(); ++j) {
-            grid[i * 28 + j] = row[j].toBool();
+            grid[i * 28 + j] = row[j].toFloat();
         }
     }
 
@@ -36,7 +36,7 @@ void Controller::onUpdateModel(QVariantList const &qgrid) {
     for (qsizetype i = 0; i < qgrid.size(); ++i) {
         auto const &row = qgrid[i].toList();
         for (qsizetype j = 0; j < row.size(); ++j) {
-            grid[i * 28 + j] = row[j].toBool();
+            grid[i * 28 + j] = row[j].toFloat();
         }
     }
 
