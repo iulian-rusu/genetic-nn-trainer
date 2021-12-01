@@ -27,7 +27,7 @@ void Model::train()
                 );
             },
             [&](std::size_t gen, value_type loss) {
-                send(gen, loss, 3, 5);
+                send(gen, loss, 0, 0);
             }
     );
     nn = chrom.network;
@@ -36,16 +36,16 @@ void Model::train()
     std::vector<std::array<value_type, 10>> preds(batch_size);
     for (auto i = 0u; i < preds.size(); ++i)
         preds[i] = nn(dataset.train_images[i]);
-    double acc = gnnt::accuracy(preds.cbegin(), preds.cend(), dataset.train_labels.cbegin());
-    std::cout << "Accuracy over " << preds.size() << " train images: " << acc << '\n';
+    auto const train_acc = gnnt::accuracy(preds.cbegin(), preds.cend(), dataset.train_labels.cbegin());
+    std::cout << "Accuracy over " << preds.size() << " train images: " << train_acc << '\n';
 
     std::vector<std::array<value_type, 10>> test_preds(dataset.test_images.size());
     for (auto i = 0u; i < test_preds.size(); ++i)
         test_preds[i] = nn(dataset.test_images[i]);
-    acc = gnnt::accuracy(test_preds.cbegin(), test_preds.cend(), dataset.test_labels.cbegin());
-    std::cout << "Accuracy over " << test_preds.size() << " test images: " << acc << '\n';
+    auto const test_acc = gnnt::accuracy(test_preds.cbegin(), test_preds.cend(), dataset.test_labels.cbegin());
+    std::cout << "Accuracy over " << test_preds.size() << " test images: " << test_acc << '\n';
 
-    send(generations, chrom.loss, (value_type)acc, 0);
+    send(generations, chrom.loss, (value_type)train_acc, (value_type)test_acc);
     emit showPopup(QStringLiteral("Model trained"));
 }
 
@@ -104,7 +104,7 @@ void Model::send(std::array<value_type, 10> const &predictions)
     emit updatePredictions(qpredictions);
 }
 
-void Model::send(std::size_t generations, value_type loss, value_type accuracy, value_type precision)
+void Model::send(std::size_t generations, value_type loss, value_type train_accuracy, value_type test_accuracy)
 {
-    emit updateTrainData((int) generations, (float) loss, (float) accuracy * 100, (float) precision * 100);
+    emit updateTrainData((int) generations, (float) loss, (float) train_accuracy * 100, (float) test_accuracy * 100);
 }

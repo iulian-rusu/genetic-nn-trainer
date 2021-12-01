@@ -7,8 +7,8 @@ GridLayout {
 
     property int generations: 0
     property double loss: 0
-    property double accuracy: 0
-    property double precision: 0
+    property double train_accuracy: 0
+    property double test_accuracy: 0
 
     columns: 2
     columnSpacing: 40
@@ -37,24 +37,24 @@ GridLayout {
     }
 
     Label {
-        id: accuracyLabel
+        id: trainAccuracyLabel
         color: "#000000"
-        text: `Accuracy: ${accuracy.toFixed(2).length > 5 ? "" : " "}${accuracy.toFixed(2).length > 4 ? "" : "0"}${accuracy.toFixed(2)}%`
+        text: `Train accuracy: ${train_accuracy.toFixed(2).length > 5 ? "" : " "}${train_accuracy.toFixed(2).length > 4 ? "" : "0"}${train_accuracy.toFixed(2)}%`
     }
 
     Label {
-        id: precisionLabel
+        id: testAccuracyLabel
         color: "#000000"
-        text: `Precision: ${precision.toFixed(2).length > 5 ? "" : " "}${precision.toFixed(2).length > 4 ? "" : "0"}${precision.toFixed(2)}%`
+        text: `Test accuracy: ${test_accuracy.toFixed(2).length > 5 ? "" : " "}${test_accuracy.toFixed(2).length > 4 ? "" : "0"}${test_accuracy.toFixed(2)}%`
     }
 
     Connections {
         target: model
-        function onUpdateTrainData(new_generations, new_loss, new_accuracy, new_precision) {
+        function onUpdateTrainData(new_generations, new_loss, new_train_accuracy, new_test_accuracy) {
             generations = new_generations
             loss = new_loss
-            accuracy = new_accuracy
-            precision = new_precision
+            train_accuracy = new_train_accuracy
+            test_accuracy = new_test_accuracy
         }
     }
 }

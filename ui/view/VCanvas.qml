@@ -52,8 +52,9 @@ Canvas {
         }
 
         if (currentPoint) {
-            ctx.fillStyle = erasing ? root.backgroundFill : root.pointerStyle
-            if (spread) {
+            ctx.fillStyle = erasing ? root.backgroundFill : root.pointerStyle;
+
+            if (spread || erasing) {
                 ctx.fillRect(
                     (root.currentPoint.x - 1) * root.scale,
                     (root.currentPoint.y - 1) * root.scale,
@@ -113,7 +114,13 @@ Canvas {
     }
 
     function erase(mouseRow, mouseColumn) {
-        root.grid[mouseRow][mouseColumn] = 0.0;
+        for (let i = -1; i <= 1; ++i)
+            for (let j = -1; j <= 1; ++j) {
+                let newRow = mouseRow + i;
+                let newColumn = mouseColumn + j;
+                if (newRow >= 0 && newRow < root.rows && newColumn >= 0 && newColumn < root.columns)
+                    root.grid[newRow][newColumn] = 0.0;
+            }
     }
 
     function randomOffset() {
@@ -127,7 +134,7 @@ Canvas {
             root.grid[mouseRow][mouseColumn] += peakIntensity + randomOffset();
 
         if (root.grid[mouseRow][mouseColumn] > 1.0) {
-            root.grid[mouseRow][mouseColumn] = 1.0
+            root.grid[mouseRow][mouseColumn] = 1.0;
         }
     }
 
@@ -141,7 +148,7 @@ Canvas {
                     let scale = 1 + Math.abs(i) * 2 + Math.abs(j) * 2;
                     root.grid[newRow][newColumn] += intensity / scale + randomOffset();
                     if (root.grid[newRow][newColumn] > 1.0) {
-                        root.grid[newRow][newColumn] = 1.0
+                        root.grid[newRow][newColumn] = 1.0;
                     }
                 }
             }
