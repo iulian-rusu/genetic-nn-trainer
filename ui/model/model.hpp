@@ -22,7 +22,7 @@ public:
     void train();
 
 signals:
-    void updateTrainData(int, float);
+    void updateTrainData(int, float, float, float);
     void updatePredictions(QVariantList const &);
     void showPopup(QString const &);
     void trainModel(gnnt::mnist_image<value_type> const &);
@@ -32,7 +32,7 @@ private slots:
 
 private:
     void send(std::array<value_type, 10> const &);
-    void send(std::size_t, value_type);
+    void send(std::size_t, value_type, value_type, value_type);
 
     gnnt::mnist_dataset<value_type> dataset = gnnt::threshold<value_type>(
             gnnt::filter(

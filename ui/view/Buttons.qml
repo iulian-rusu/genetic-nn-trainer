@@ -20,14 +20,12 @@ ColumnLayout {
         Layout.alignment: Qt.AlignHCenter
         spacing: root.spacing
 
-        Button {
+        VButton {
             id: clear
 
             Layout.preferredWidth: root.buttonWidth
             Layout.preferredHeight: root.buttonHeight
 
-            flat: true
-            highlighted: true
             text: "Clear"
 
             onClicked: {
@@ -35,14 +33,12 @@ ColumnLayout {
             }
         }
 
-        Button {
+        VButton {
             id: resetModel
 
             Layout.preferredWidth: root.buttonWidth
             Layout.preferredHeight: root.buttonHeight
 
-            flat: true
-            highlighted: true
             text: "Reset model"
 
             onClicked: {
@@ -55,14 +51,12 @@ ColumnLayout {
         Layout.alignment: Qt.AlignHCenter
         spacing: root.spacing
 
-        Button {
+        VButton {
             id: loadModel
 
             Layout.preferredWidth: root.buttonWidth
             Layout.preferredHeight: root.buttonHeight
 
-            flat: true
-            highlighted: true
             text: "Load model"
 
             onClicked: {
@@ -70,14 +64,12 @@ ColumnLayout {
             }
         }
 
-        Button {
+        VButton {
             id: trainModel
 
             Layout.preferredWidth: root.buttonWidth
             Layout.preferredHeight: root.buttonHeight
 
-            flat: true
-            highlighted: true
             text: "Train model"
 
             onClicked: {
@@ -86,14 +78,12 @@ ColumnLayout {
             }
         }
 
-        Button {
+        VButton {
             id: saveModel
 
             Layout.preferredWidth: root.buttonWidth
             Layout.preferredHeight: root.buttonHeight
 
-            flat: true
-            highlighted: true
             text: "Save model"
 
             onClicked: {

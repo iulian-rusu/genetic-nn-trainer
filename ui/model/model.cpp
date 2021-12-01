@@ -27,7 +27,7 @@ void Model::train()
                 );
             },
             [&](std::size_t gen, value_type loss) {
-                send(gen, loss);
+                send(gen, loss, 3, 5);
             }
     );
     nn = chrom.network;
@@ -37,35 +37,40 @@ void Model::train()
     for (auto i = 0u; i < preds.size(); ++i)
         preds[i] = nn(dataset.train_images[i]);
     double acc = gnnt::accuracy(preds.cbegin(), preds.cend(), dataset.train_labels.cbegin());
-    std::cout << "Acucracy over " << preds.size() << " train images: " << acc << '\n';
+    std::cout << "Accuracy over " << preds.size() << " train images: " << acc << '\n';
 
     std::vector<std::array<value_type, 10>> test_preds(dataset.test_images.size());
     for (auto i = 0u; i < test_preds.size(); ++i)
         test_preds[i] = nn(dataset.test_images[i]);
     acc = gnnt::accuracy(test_preds.cbegin(), test_preds.cend(), dataset.test_labels.cbegin());
-    std::cout << "Acucracy over " << test_preds.size() << " test images: " << acc << '\n';
+    std::cout << "Accuracy over " << test_preds.size() << " test images: " << acc << '\n';
 
-    send(generations, chrom.loss);
+    send(generations, chrom.loss, acc, 0);
     emit showPopup(QStringLiteral("Model trained"));
 }
 
 void Model::resetModel()
 {
     nn = neural_network{};
-    send(0, 0);
+    send(0, 0, 0, 0);
     emit showPopup(QStringLiteral("Model reset"));
 }
 
 void Model::loadModel(std::string &&location)
 {
     bool modelLoaded = false;
-
-    /*
-     * TODO load model from file
-     */
+    try
+    {
+        nn.read(location);
+        modelLoaded = true;
+    } catch (...)
+    {
+        std::cerr << "bruh\n";
+    }
 
     if (modelLoaded)
     {
+        emit send(0, 0, 0, 0); // TODO send something?
         emit showPopup(QStringLiteral("Model loaded"));
     }
     else
@@ -120,7 +125,7 @@ void Model::send(std::array<value_type, 10> const &predictions)
     emit updatePredictions(qpredictions);
 }
 
-void Model::send(std::size_t generations, value_type loss)
+void Model::send(std::size_t generations, value_type loss, value_type accuracy, value_type precision)
 {
-    emit updateTrainData((int) generations, (float) loss);
+    emit updateTrainData((int) generations, (float) loss, (float) accuracy * 100, (float) precision * 100);
 }
