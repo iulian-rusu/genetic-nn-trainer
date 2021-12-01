@@ -11,6 +11,8 @@ Window {
     visible: true
     title: "Genetic nn trainer"
 
+    color: "#ffffff"
+
     ColumnLayout {
         id: columnLayout
 
@@ -20,6 +22,9 @@ Window {
         VCanvas {
             id: canvas
             Layout.alignment: Qt.AlignHCenter
+
+            erasing: brushes.erasing
+            spread: brushes.spread
 
             Connections {
                 target: buttons
@@ -34,6 +39,11 @@ Window {
                     controller.onUpdateModel(canvas.grid)
                 }
             }
+        }
+
+        Brushes {
+            id: brushes
+            Layout.alignment: Qt.AlignHCenter
         }
 
         Predictions {

@@ -8,6 +8,9 @@ Canvas {
     implicitHeight: scale * rows
     antialiasing: true
 
+    property bool erasing: false
+    property bool spread: true
+
     property int columns: 28
     property int rows: 28
     property int scale: 10
@@ -79,5 +82,8 @@ Canvas {
     function clear() {
         grid = Array(rows).fill().map(() => Array(columns).fill(false));
         root.requestPaint();
+
+        console.log(erasing);
+        console.log(spread);
     }
 }

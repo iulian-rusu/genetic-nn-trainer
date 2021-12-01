@@ -1,10 +1,12 @@
 <RCC>
     <qresource prefix="/">
-        <file>ui/view/main.qml</file>
-        <file>ui/view/VCanvas.qml</file>
+        <file>ui/view/Brushes.qml</file>
         <file>ui/view/Buttons.qml</file>
-        <file>ui/view/Stats.qml</file>
+        <file>ui/view/main.qml</file>
         <file>ui/view/Predictions.qml</file>
+        <file>ui/view/Stats.qml</file>
         <file>ui/view/VButton.qml</file>
+        <file>ui/view/VCanvas.qml</file>
+        <file>ui/view/VRadioButton.qml</file>
     </qresource>
 </RCC>
