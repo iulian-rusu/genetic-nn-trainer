@@ -1,6 +1,7 @@
 #ifndef GENETIC_NN_TRAINER_PIPELINE_HPP
 #define GENETIC_NN_TRAINER_PIPELINE_HPP
 
+#include <gnnt/mnist/dataset.hpp>
 #include <gnnt/utility/pair.hpp>
 
 namespace gnnt

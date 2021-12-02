@@ -60,7 +60,8 @@ int main()
                     // This loss function is minimal when res[0] == res[1] == 0.5
                     c.loss = std::abs(res[0] - 0.5) + std::abs(res[1] - 0.5);
                 }
-            }
+            },
+    gnnt::chromosome{neural_network{}}
     );
 
     std::cout << "Generations: " << generations << '\n';
