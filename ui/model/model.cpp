@@ -1,6 +1,5 @@
 #include <model.hpp>
 
-#include <execution>
 #include <iostream>
 #include <thread>
 
@@ -28,7 +27,6 @@ void Model::train()
                         population.begin(), population.end(),
                         [&](auto &c) noexcept {
                             c.loss = gnnt::categorical_crossentropy(
-                                    std::execution::unseq,
                                     c.network,
                                     img_batch_begin,
                                     img_batch_end,
