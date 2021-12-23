@@ -51,7 +51,7 @@ namespace gnnt
             while (++current_generation <= config.max_generations)
             {
                 auto best_chrom = find_best_chromosome();
-                if (std::abs(best_chrom.loss) <= config.precision)
+                if (std::abs(best_chrom.loss - config.target_value) <= config.error)
                     return {best_chrom, current_generation};
 
                 selection(index_rng);

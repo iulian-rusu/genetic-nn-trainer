@@ -6,7 +6,6 @@
 using namespace gnnt::mlp;
 
 using value_type = float;
-
 using neural_network =
         network
         <
@@ -17,13 +16,15 @@ using neural_network =
             dense<10, softmax>
         >;
 
-inline constexpr static auto config = gnnt::trainer_config{
-        .max_generations = 5000,
-        .population_size = 150,
+inline constexpr auto config = gnnt::trainer_config{
+        .max_generations = 500,
+        .population_size = 100,
         .mutation_prob = 0.0015,
         .crossover_alpha = 1.0 / 3,
-        .precision = 0.1,
+        .error = 0.05,
         .search_space = {-2.5, 2.5}
 };
+
+inline constexpr std::size_t batch_size = 600;
 
 #endif //GENETIC_NN_TRAINER_CONFIG_HPP

@@ -10,8 +10,9 @@ namespace gnnt
         double crossover_prob = 0.9;
         double mutation_prob = 0.03;
         double crossover_alpha = 0.5;
-        double precision = 1.0e-2;
         bool elitism = true;
+        double target_value = 0.0;
+        double error = 1.0e-3;
         std::array<double, 2> search_space{-1.0, 1.0};
     };
 }

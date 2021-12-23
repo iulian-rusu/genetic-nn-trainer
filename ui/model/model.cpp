@@ -12,7 +12,6 @@ Model::Model(QObject *parent) : QObject(parent)
 
 void Model::train()
 {
-    constexpr std::size_t batch_size = 128;
     auto batcher = gnnt::batch<batch_size>(dataset.train_images);
     auto img_begin = dataset.train_images.cbegin();
     auto labels_begin = dataset.train_labels.cbegin();
