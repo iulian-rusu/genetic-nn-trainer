@@ -43,6 +43,7 @@ private:
     );
     neural_network nn{};
     gnnt::trainer<gnnt::chromosome<neural_network>, config> trainer{};
+    bool training = false;
 };
 
 class WorkerThread : public QThread

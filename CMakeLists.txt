@@ -36,6 +36,7 @@ else()
     endif()
 endif()
 
+set(QT_FEATURE_intelcet ON)
 find_package(QT NAMES Qt6 COMPONENTS Core Quick REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 

@@ -6,8 +6,8 @@ import QtQuick.Window
 
 Window {
     id: root
-    width: 640
-    height: 600
+    width: 720
+    height: 640
     visible: true
     title: "Genetic nn trainer"
 

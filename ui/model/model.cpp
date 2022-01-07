@@ -60,10 +60,13 @@ void Model::train()
 
     send(generations, chrom.loss, (value_type)train_acc, (value_type)test_acc);
     emit showPopup(QStringLiteral("Model trained"));
+    training = false;
 }
 
 void Model::resetModel()
 {
+    if (training) return;
+
     nn = neural_network{};
     send(0, 0, 0, 0);
     emit showPopup(QStringLiteral("Model reset"));
@@ -71,6 +74,8 @@ void Model::resetModel()
 
 void Model::loadModel(std::string &&location)
 {
+    if (training) return;
+
     try
     {
         nn.read(location);
@@ -83,6 +88,9 @@ void Model::loadModel(std::string &&location)
 
 void Model::onTrainModel(gnnt::mnist_image<value_type> const &)
 {
+    if (training) return;
+    training = true;
+
     auto *workerThread = new WorkerThread(this);
     connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
     workerThread->start();
@@ -90,6 +98,8 @@ void Model::onTrainModel(gnnt::mnist_image<value_type> const &)
 
 void Model::saveModel(std::string &&location)
 {
+    if (training) return;
+
     try
     {
         nn.write(location);
