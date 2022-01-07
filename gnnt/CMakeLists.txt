@@ -3,8 +3,4 @@ add_library(
         gnnt.hpp
 )
 
-add_executable(testingexe
-        testing/tests.cpp
-)
-
 target_include_directories(gnnt INTERFACE .)
