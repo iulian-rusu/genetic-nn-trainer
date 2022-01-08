@@ -12,7 +12,7 @@ Model::Model(QObject *parent) : QObject(parent)
 
 void Model::train()
 {
-    constexpr std::size_t batch_size = 128;
+    constexpr std::size_t batch_size = 800;
     auto batcher = gnnt::batch<batch_size>(dataset.train_images);
     auto img_begin = dataset.train_images.cbegin();
     auto labels_begin = dataset.train_labels.cbegin();
@@ -41,7 +41,7 @@ void Model::train()
             gnnt::chromosome{nn}
     );
     nn = chrom.network;
-
+    saveModel("/Users/c.besliu/CLionProjects/genetic-nn-trainer/data/models/800batch_lbl_less_3_prec2.data");
     // How to calculate accuracy example:
     auto const train_acc = gnnt::accuracy(
             nn,

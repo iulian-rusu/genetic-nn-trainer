@@ -13,6 +13,16 @@ void show_image(std::size_t index, auto const &dataset)
     }
     std::printf("\nLabel: %d\n", dataset.train_labels[index]);
 }
+void show_image2(auto img)
+{
+    for (auto i = 0u; i < img.size(); ++i)
+    {
+
+        std::printf("%3f ", img[i]);
+        if (i % 28 == 27)
+            std::cout << '\n';
+    }
+}
 
 using namespace gnnt::mlp;
 
@@ -29,7 +39,7 @@ using neural_network =
 int main()
 {
     auto dataset = gnnt::mnist_serializer::read("../../data/mnist");
-    std::size_t random_index = 420;
+    std::size_t random_index = 11000;
 
     std::cout << "Train images: " << dataset.train_images.size() << '\n';
     std::cout << "Test images: " << dataset.test_images.size() << '\n';
@@ -40,6 +50,12 @@ int main()
     auto const &img = dataset.train_images[random_index];
     gnnt::mnist_image<float> norm_img{};
     gnnt::normalize(img.cbegin(), img.cend(), norm_img.begin(), 0, 255);
+    show_image2(norm_img);
+
+    auto normalizedMnistDataset = gnnt::datasetNormalizing(dataset);
+    show_image2(normalizedMnistDataset.train_images[11000]);
+
+    //TODO: auto norm_dataset = normalize(dataset
 
     // Example of how to create and train models
     constexpr auto config = gnnt::trainer_config{
@@ -54,6 +70,7 @@ int main()
 
     auto[chrom, generations] = trainer.train(
             [&](auto &population) {
+                //TODO: auto & batch = get_batch(dataset,44);
                 for (auto &c: population)
                 {
                     auto res = c.network(norm_img);

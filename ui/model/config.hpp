@@ -7,22 +7,14 @@ using namespace gnnt::mlp;
 
 using value_type = float;
 
-using neural_network =
-        network
-        <
-            value_type,
-            input<gnnt::image_dimension>,
-            dense<16, relu>,
-            dense<16, relu>,
-            dense<10, softmax>
-        >;
+using neural_network = network < value_type, input<gnnt::image_dimension>, dense<16, relu>, dense<16, relu>, dense<10, softmax>>;
 
 inline constexpr static auto config = gnnt::trainer_config{
-        .max_generations = 5000,
+        .max_generations = 2000,
         .population_size = 150,
         .mutation_prob = 0.0015,
         .crossover_alpha = 1.0 / 3,
-        .precision = 0.1,
+        .precision = 0.025,
         .search_space = {-2.5, 2.5}
 };
 

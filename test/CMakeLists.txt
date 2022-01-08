@@ -1,8 +1,7 @@
 add_executable(
         tests
         tests.cpp
-        mlp_tests.cpp
-)
+        mlp_tests.cpp)
 
 target_link_libraries(tests PUBLIC gnnt)
 

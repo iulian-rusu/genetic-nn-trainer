@@ -1,2 +1,1 @@
-add_library(view STATIC
-    )
+add_library(view STATIC)
