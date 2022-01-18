@@ -25,6 +25,6 @@ inline constexpr auto config = gnnt::trainer_config{
         .search_space = {-2.5, 2.5}
 };
 
-inline constexpr std::size_t batch_size = 600;
+inline constexpr std::size_t batch_size = 300;
 
 #endif //GENETIC_NN_TRAINER_CONFIG_HPP
