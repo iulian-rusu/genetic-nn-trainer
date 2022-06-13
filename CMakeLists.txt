@@ -39,9 +39,9 @@ endif()
 find_package(QT NAMES Qt6 COMPONENTS Core Quick REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 
-add_subdirectory(gnnt)
+add_subdirectory(include)
 add_subdirectory(test)
-add_subdirectory(ui)
+add_subdirectory(gui)
 
 set(PROJECT_SOURCES
     main.cpp

@@ -15,7 +15,7 @@ namespace gnnt
         network_t network{};
         value_type loss = std::numeric_limits<value_type>::max();
 
-        constexpr std::partial_ordering operator<=>(chromosome const &other) const noexcept
+        constexpr auto operator<=>(chromosome const &other) const noexcept
         {
             return loss <=> other.loss;
         }

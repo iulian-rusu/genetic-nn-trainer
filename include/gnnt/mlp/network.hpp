@@ -61,6 +61,12 @@ namespace gnnt::mlp
         }
 
     private:
+        template<std::size_t... Indices>
+        output_t fold(input_t const &input, std::index_sequence<Indices ...> &&) const noexcept
+        {
+            return (input  | ... | [&](auto const &x) { return feed_forward<Indices>(x); });
+        }
+
         template<std::size_t I>
         layer_t<I + 1> feed_forward(layer_t<I> const &input) const noexcept
         {
@@ -74,21 +80,15 @@ namespace gnnt::mlp
             return result;
         }
 
-        template<std::size_t... Indices>
-        output_t fold(input_t const &input, std::index_sequence<Indices ...> &&) const noexcept
-        {
-            return (input  | ... | [&](auto const &x) { return feed_forward<Indices>(x); });
-        }
-
         template<typename Func>
         void for_each_parameter(Func &&func)
         {
             for_each_tuple(
-                    [&](auto &layer_ws) {
-                        for (auto &neuron_ws: layer_ws)
-                            func(neuron_ws);
-                    },
-                    weights
+                [&](auto &layer_ws) {
+                    for (auto &neuron_ws: layer_ws)
+                        func(neuron_ws);
+                },
+                weights
             );
             for_each_tuple(func, biases);
         }

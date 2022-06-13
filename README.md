@@ -6,10 +6,10 @@ The project's directory structure:
 * `data/` - various data used for testing
   * `data/mnist/` - dataset for handwritten digit recognition
   * `data/models/` - models saved after training
-* `gnnt/` - main directory with the implementation
-  * `gnnt/gnnt/mlp/` - compile-time Multilayer Perceptron network
-  * `gnnt/gnnt/training/` - genetic algorithm implementation
-* `ui/` - user interface implemented using QT
+* `gui/` - graphical user interface implemented using QT
+* `include/` - main directory with the implementation
+  * `include/gnnt/mlp/` - compile-time Multilayer Perceptron network
+  * `include/gnnt/training/` - genetic algorithm implementation
 * `test/` - test cases for activation functions with the `Catch2` framework
 
 
